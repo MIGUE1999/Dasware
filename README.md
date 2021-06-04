@@ -4,11 +4,11 @@
 
 Conectar dos dipositivos móviles al ordenador, ejecutar en un dispositivo la app del periferico y en otro dispositivo la app BluetoothGatt.
 
-##Requisitos
+## Requisitos
 
 Dar permisos de ubicacion desde el dispositivo movil en ambos dispositivos. Activar el bluetooth y la ubicacion(IMPORTANTE: si la ubicación no está activada o la aplicación no tiene el permiso de ubicación activo NO FUNCIONARÁ).
 
-##USO
+## USO
 
 El dispositivo en el que esté corriendo la app BluetoothGatt será el dispositivo central y el otro dispositivo donde esté corriendo la app Periférico será el dispositivo periferico.
 
@@ -20,7 +20,7 @@ El dispositivo en el que esté corriendo la app BluetoothGatt será el dispositi
 
 - El valor cambiado se muestra en la actividad del central(el cambio de valor es inmediato ) y en el periferico(EN EL PERIFERICO este valor cambiara cuando se produzca una modificacion en el sistema, ejemplo: cuando llegue un sms o cuando cambie el valor de la hora) Aunque internamente el valor ya está cambiado).  
 
-##FUNCION
+## FUNCION
 
 Con este pequeño ejemplo he aprendido lo necesario para manejar una app bluetooth LE. Crear un perfil, crear un servidor en un periférico, escanear dispositivos bluetooth, escribir y leer caracteristicas de un perfil.
 

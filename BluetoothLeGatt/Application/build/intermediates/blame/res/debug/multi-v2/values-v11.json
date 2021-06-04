@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v11/values-v11.xml",
+            "outputFile": "/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v11/values-v11.xml",
             "map": [
                 {
-                    "source": "/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/res/values-v11/template-styles.xml",
+                    "source": "/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/src/main/res/values-v11/template-styles.xml",
                     "from": {
                         "startLines": "19",
                         "startColumns": "4",

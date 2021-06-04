@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/build/intermediates/incremental/mergeDebugResources/merged.dir/values-large-v4/values-large-v4.xml",
+            "outputFile": "/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/incremental/mergeDebugResources/merged.dir/values-large-v4/values-large-v4.xml",
             "map": [
                 {
                     "source": "/home/migue/.gradle/caches/transforms-2/files-2.1/ec74457122abad76b554166d89cd1f43/res/values-large-v4/values-large-v4.xml",

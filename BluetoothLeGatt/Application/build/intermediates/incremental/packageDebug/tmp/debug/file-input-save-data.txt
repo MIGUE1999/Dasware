@@ -1,7 +1,7 @@
 #Internal package file, do not edit.
-#Fri Jun 04 13:57:26 CEST 2021
+#Fri Jun 04 14:44:18 CEST 2021
 0.baseType=DIRECTORY
-0.base=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/build/intermediates/dex/debug/mergeDexDebug/out
+0.base=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/dex/debug/mergeDexDebug/out
 0.path=classes.dex
 0.set=DEX
 count=1

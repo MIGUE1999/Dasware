@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sk/values-sk.xml",
+            "outputFile": "/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sk/values-sk.xml",
             "map": [
                 {
                     "source": "/home/migue/.gradle/caches/transforms-2/files-2.1/28f9a61c0dd44910cb4130b58572cfe3/res/values-sk/values-sk.xml",

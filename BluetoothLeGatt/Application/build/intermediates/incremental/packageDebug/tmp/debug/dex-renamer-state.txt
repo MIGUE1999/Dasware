@@ -1,4 +1,4 @@
-#Fri Jun 04 13:57:26 CEST 2021
-base.0=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/build/intermediates/dex/debug/mergeDexDebug/out
+#Fri Jun 04 14:44:18 CEST 2021
+base.0=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/dex/debug/mergeDexDebug/out
 path.0=classes.dex
 renamed.0=classes.dex

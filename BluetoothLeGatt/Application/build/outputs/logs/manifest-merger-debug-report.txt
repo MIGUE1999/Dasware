@@ -1,0 +1,181 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:20:1-52:12
+INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:20:1-52:12
+INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:20:1-52:12
+MERGED from [com.android.support:support-v13:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/98a14a1b941a4820f7205e45c1a65783/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-v4:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/98942f05dce269697955ffec6661ec61/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:cardview-v7:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/437073e3ac1521d19a0d459e265194cc/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:appcompat-v7:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/ec74457122abad76b554166d89cd1f43/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-media-compat:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/f09b58c4b609cd8a170f67a881b4a020/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-fragment:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/09acc9c4edf2247cad6d40943b0e33d6/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:animated-vector-drawable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/fcda98cb319b557a4c12a37cc975258a/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-ui:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/9e132120400a5361be98c7adbd8b6d83/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-utils:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/d2b91442c2af34c3027bd9f672311267/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-vector-drawable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/8f975f24d1b601695ca58683b474495c/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:loader:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/703d05456ec5d3ee8e3fcf7744006643/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:viewpager:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/3fb1102b600c36de9a06a9a438b4e856/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:coordinatorlayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/c7ca32c0ed8746dcec85cc9ced25a81a/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:drawerlayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/c7bdeac14140513d4f6d1d80eac702f2/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:slidingpanelayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/5fec5e47407de4e5c1ce70330a2a706c/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:customview:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/81892bda980965d03f9d929dbca450f0/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:swiperefreshlayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/988bedb740467b4118021d7e79598555/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:asynclayoutinflater:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/952c572656acb38ac92de4d4101db342/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-compat:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/28f9a61c0dd44910cb4130b58572cfe3/AndroidManifest.xml:17:1-24:12
+MERGED from [com.android.support:versionedparcelable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/6a57de2aae3c1406bfbac9ff6adafa87/AndroidManifest.xml:17:1-25:12
+MERGED from [com.android.support:cursoradapter:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/a0d16d0d75e8307dd481ea0cde429011/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:runtime:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/73ea1e77a6e0c5da72f9e2b7f7d42c0b/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:documentfile:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/74ad8d5ed6a427d176916bef7e041504/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:localbroadcastmanager:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/b9e8600cc6d6f865653cd58f560c4460/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:print:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/d5f03010be46ce720c2daaf4fe7eae9f/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:interpolator:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/d9acd5be4112423ebd988553226d5cc7/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:viewmodel:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/725b2a9c96c442e8d67984062131508d/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:livedata:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/80a6d825453169d42fe17565780a056b/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:livedata-core:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/e2e1a2d895e402b00225ae510d421baa/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.core:runtime:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/577bab3d1f2d85771e4f0598b792733c/AndroidManifest.xml:17:1-22:12
+INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:20:1-52:12
+INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:20:1-52:12
+	package
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:21:5-50
+	android:versionName
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:23:5-30
+		INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+		INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:20:11-69
+	android:versionCode
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:22:5-28
+		INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+		INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+uses-feature#android.hardware.bluetooth_le
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:31:5-89
+	android:required
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:31:64-87
+	android:name
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:31:19-63
+uses-permission#android.permission.BLUETOOTH
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:33:5-67
+	android:name
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:33:22-65
+uses-permission#android.permission.BLUETOOTH_ADMIN
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:34:5-73
+	android:name
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:34:22-71
+uses-permission#android.permission.ACCESS_FINE_LOCATION
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:35:5-78
+	android:name
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:35:22-76
+application
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:38:5-50:19
+MERGED from [com.android.support:support-compat:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/28f9a61c0dd44910cb4130b58572cfe3/AndroidManifest.xml:22:5-94
+MERGED from [com.android.support:support-compat:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/28f9a61c0dd44910cb4130b58572cfe3/AndroidManifest.xml:22:5-94
+MERGED from [com.android.support:versionedparcelable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/6a57de2aae3c1406bfbac9ff6adafa87/AndroidManifest.xml:22:5-23:19
+MERGED from [com.android.support:versionedparcelable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/6a57de2aae3c1406bfbac9ff6adafa87/AndroidManifest.xml:22:5-23:19
+	android:appComponentFactory
+		ADDED from [com.android.support:support-compat:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/28f9a61c0dd44910cb4130b58572cfe3/AndroidManifest.xml:22:18-91
+	android:label
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:38:18-50
+	android:icon
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:39:9-45
+	android:theme
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:40:9-56
+activity#com.example.android.bluetoothlegatt.DeviceScanActivity
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:41:9-47:20
+	android:label
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:42:13-45
+	android:name
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:41:19-53
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:43:13-46:29
+action#android.intent.action.MAIN
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:44:17-68
+	android:name
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:44:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:45:17-76
+	android:name
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:45:27-74
+activity#com.example.android.bluetoothlegatt.DeviceControlActivity
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:48:9-58
+	android:name
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:48:19-56
+service#com.example.android.bluetoothlegatt.BluetoothLeService
+ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:49:9-77
+	android:enabled
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:49:53-75
+	android:name
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml:49:18-52
+uses-sdk
+INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+MERGED from [com.android.support:support-v13:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/98a14a1b941a4820f7205e45c1a65783/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-v13:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/98a14a1b941a4820f7205e45c1a65783/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-v4:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/98942f05dce269697955ffec6661ec61/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-v4:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/98942f05dce269697955ffec6661ec61/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cardview-v7:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/437073e3ac1521d19a0d459e265194cc/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cardview-v7:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/437073e3ac1521d19a0d459e265194cc/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/ec74457122abad76b554166d89cd1f43/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/ec74457122abad76b554166d89cd1f43/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-media-compat:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/f09b58c4b609cd8a170f67a881b4a020/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-media-compat:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/f09b58c4b609cd8a170f67a881b4a020/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-fragment:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/09acc9c4edf2247cad6d40943b0e33d6/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-fragment:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/09acc9c4edf2247cad6d40943b0e33d6/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/fcda98cb319b557a4c12a37cc975258a/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/fcda98cb319b557a4c12a37cc975258a/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/9e132120400a5361be98c7adbd8b6d83/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/9e132120400a5361be98c7adbd8b6d83/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/d2b91442c2af34c3027bd9f672311267/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/d2b91442c2af34c3027bd9f672311267/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/8f975f24d1b601695ca58683b474495c/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/8f975f24d1b601695ca58683b474495c/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:loader:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/703d05456ec5d3ee8e3fcf7744006643/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:loader:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/703d05456ec5d3ee8e3fcf7744006643/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:viewpager:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/3fb1102b600c36de9a06a9a438b4e856/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:viewpager:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/3fb1102b600c36de9a06a9a438b4e856/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:coordinatorlayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/c7ca32c0ed8746dcec85cc9ced25a81a/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:coordinatorlayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/c7ca32c0ed8746dcec85cc9ced25a81a/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:drawerlayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/c7bdeac14140513d4f6d1d80eac702f2/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:drawerlayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/c7bdeac14140513d4f6d1d80eac702f2/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:slidingpanelayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/5fec5e47407de4e5c1ce70330a2a706c/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:slidingpanelayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/5fec5e47407de4e5c1ce70330a2a706c/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:customview:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/81892bda980965d03f9d929dbca450f0/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:customview:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/81892bda980965d03f9d929dbca450f0/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:swiperefreshlayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/988bedb740467b4118021d7e79598555/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:swiperefreshlayout:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/988bedb740467b4118021d7e79598555/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:asynclayoutinflater:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/952c572656acb38ac92de4d4101db342/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:asynclayoutinflater:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/952c572656acb38ac92de4d4101db342/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/28f9a61c0dd44910cb4130b58572cfe3/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/28f9a61c0dd44910cb4130b58572cfe3/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:versionedparcelable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/6a57de2aae3c1406bfbac9ff6adafa87/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:versionedparcelable:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/6a57de2aae3c1406bfbac9ff6adafa87/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cursoradapter:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/a0d16d0d75e8307dd481ea0cde429011/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cursoradapter:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/a0d16d0d75e8307dd481ea0cde429011/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/73ea1e77a6e0c5da72f9e2b7f7d42c0b/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/73ea1e77a6e0c5da72f9e2b7f7d42c0b/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:documentfile:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/74ad8d5ed6a427d176916bef7e041504/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:documentfile:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/74ad8d5ed6a427d176916bef7e041504/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:localbroadcastmanager:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/b9e8600cc6d6f865653cd58f560c4460/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:localbroadcastmanager:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/b9e8600cc6d6f865653cd58f560c4460/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:print:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/d5f03010be46ce720c2daaf4fe7eae9f/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:print:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/d5f03010be46ce720c2daaf4fe7eae9f/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:interpolator:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/d9acd5be4112423ebd988553226d5cc7/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:interpolator:28.0.0] /home/migue/.gradle/caches/transforms-2/files-2.1/d9acd5be4112423ebd988553226d5cc7/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/725b2a9c96c442e8d67984062131508d/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/725b2a9c96c442e8d67984062131508d/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/80a6d825453169d42fe17565780a056b/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/80a6d825453169d42fe17565780a056b/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/e2e1a2d895e402b00225ae510d421baa/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/e2e1a2d895e402b00225ae510d421baa/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/577bab3d1f2d85771e4f0598b792733c/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.1] /home/migue/.gradle/caches/transforms-2/files-2.1/577bab3d1f2d85771e4f0598b792733c/AndroidManifest.xml:20:5-44
+INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+		INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+		ADDED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml
+		INJECTED from /home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Proyectos/BluetoothLeGatt/Application/src/main/AndroidManifest.xml

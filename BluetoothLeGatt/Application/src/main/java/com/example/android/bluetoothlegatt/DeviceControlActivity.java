@@ -35,6 +35,7 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -182,6 +183,7 @@ public class DeviceControlActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
     }
 
     @Override
@@ -322,9 +324,12 @@ public class DeviceControlActivity extends Activity {
 
             if(cerrado) {
                 mBluetoothLeService.writeCustomCharacteristic("0xBB");
+                //authorizeApp();
                 cerrado=false;
+
             }else{
                 mBluetoothLeService.writeCustomCharacteristic("0xAA");
+                //authorizeApp();
                 cerrado=true;
             }
             TimeUnit.SECONDS.sleep(1);
@@ -332,9 +337,18 @@ public class DeviceControlActivity extends Activity {
         }
     }
 
+    public void authorizeApp(){
+
+        String code = "0100030027A7";
+
+        mBluetoothLeService.writePairingService(code);          //Request Data Public Key
+
+    }
+
     public void onClickRead(View v){
         if(mBluetoothLeService != null) {
             readMainCharacteristic();
+
         }
 
     }

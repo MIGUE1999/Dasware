@@ -1,6 +1,8 @@
 package com.bluetooth.perifericoble;
 
+
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -18,6 +20,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -49,6 +52,15 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import org.libsodium.jni.NaCl;
+import org.libsodium.jni.Sodium;
+import org.libsodium.jni.SodiumConstants;
+import org.libsodium.jni.crypto.Random;
+import org.libsodium.jni.keys.KeyPair;
+import org.libsodium.jni.keys.PrivateKey;
+import org.libsodium.jni.keys.PublicKey;
+
+
 import static com.bluetooth.perifericoble.DOORProfile.TX_READ_CHAR;
 import static com.bluetooth.perifericoble.DOORProfile.door_state;
 import static com.bluetooth.perifericoble.DOORProfile.getDoorState;
@@ -58,6 +70,7 @@ import static com.bluetooth.perifericoble.DOORProfile.initDoorState;
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private TextView mLocalTimeView;
+    private TextView mPairingCodeView;
 
     private BluetoothManager mBluetoothManager;
     //private BluetoothAdapter mBluetoothAdapter;
@@ -66,443 +79,19 @@ public class MainActivity extends Activity {
 
     private Set<BluetoothDevice> mRegisteredDevices = new HashSet<>();
 
+    private PublicKey publicKey;
+    private PrivateKey privateKey;
+    public final int REQUEST_COMAND_SIZE=4;
+    public final int PUBLIC_KEY_COMAND_SIZE=9;
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public static BluetoothGattService pairingService = DOORProfile.createKeyTurnerPairingService();
+
 
     private static final int REQUEST_LOCATION = 0;
 
-    /*
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        ListView list = new ListView(this);
-        setContentView(list);
-
-        mConnectedDevices = new ArrayList<BluetoothDevice>();
-        mConnectedDevicesAdapter = new ArrayAdapter<BluetoothDevice>(this, android.R.layout.simple_list_item_1, mConnectedDevices);
-        list.setAdapter(mConnectedDevicesAdapter);
-
-        mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = mBluetoothManager.getAdapter();
-
-        requestLocationPermission();
-
-    }
-    */
-
-/*
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    protected void onResume() {
-        super.onResume();
-        /*
-         * Make sure bluettoth is enabled
-         */
-    /*
-        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-            //Bluetooth is disabled
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableBtIntent);
-            finish();
-            return;
-        }
-
-        /*
-         * Check for Bluetooth LE Support
-         */
-    /*
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, "No LE Support.", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        /*
-         * Check for advertising support.
-         */
-    /*
-        if (!mBluetoothAdapter.isMultipleAdvertisementSupported()) {
-            Toast.makeText(this, "No Advertising Support.", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
-        mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
-        mGattServer = mBluetoothManager.openGattServer(this, mGattServerCallback);
-
-        // If everything is okay then start
-        initServer();
-        stopAdvertising();
-        startAdvertising();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopAdvertising();
-         shutdownServer();
-        //mBluetoothLeAdvertiser = null;
-    }
-*/
-    /*
-     * Callback handles events from the framework describing
-     * if we were successful in starting the advertisement requests.
-     */
-
-    /*
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback() {
-        @Override
-        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-            Log.i(TAG, "Peripheral Advertise Started.");
-            postStatusMessage("GATT Server Ready");
-        }
-
-        @Override
-        public void onStartFailure(int errorCode) {
-            //Log.w(TAG, "Peripheral Advertise Failed: "+errorCode);
-            String description = "";
-            if (errorCode == AdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
-                description = "ADVERTISE_FAILED_FEATURE_UNSUPPORTED";
-            else if (errorCode == AdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
-                description = "ADVERTISE_FAILED_TOO_MANY_ADVERTISERS";
-            else if (errorCode == AdvertiseCallback.ADVERTISE_FAILED_ALREADY_STARTED)
-                description = "ADVERTISE_FAILED_ALREADY_STARTED";
-            else if (errorCode == AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE)
-                description = "ADVERTISE_FAILED_DATA_TOO_LARGE";
-            else if (errorCode == AdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR)
-                description = "ADVERTISE_FAILED_INTERNAL_ERROR";
-            else description = "unknown";
-
-            //postStatusMessage("GATT Server Error "+errorCode);
-            postStatusMessage("GATT Server Error "+description);
-
-        }
-    };
-
-    */
-/*
-    private Handler mHandler = new Handler();
-    private void postStatusMessage(final String message) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                setTitle(message);
-            }
-        });
-    }
-    */
-
-    /*
-     * Create the GATT server instance, attaching all services and
-     * characteristics that should be exposed
-     */
-    /*
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void initServer() {
-
-
-        BluetoothGattService UART_SERVICE =new BluetoothGattService(UARTProfile.UART_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-
-        BluetoothGattCharacteristic TX_READ_CHAR =
-                new BluetoothGattCharacteristic(DOORProfile.TX_READ_CHAR,
-                        //Read-only characteristic, supports notifications
-                        BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY ,
-                        BluetoothGattCharacteristic.PERMISSION_READ);
-
-        //Descriptor for read notifications
-        BluetoothGattDescriptor TX_READ_CHAR_DESC = new BluetoothGattDescriptor(DOORProfile.TX_READ_CHAR_DESC, DOORProfile.DESCRIPTOR_PERMISSION);
-        TX_READ_CHAR_DESC.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        TX_READ_CHAR_DESC.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
-        TX_READ_CHAR.addDescriptor(TX_READ_CHAR_DESC);
-
-
-        BluetoothGattCharacteristic RX_WRITE_CHAR =
-                new BluetoothGattCharacteristic(UARTProfile.RX_WRITE_CHAR,
-                        //write permissions
-                        BluetoothGattCharacteristic.PROPERTY_WRITE , BluetoothGattCharacteristic.PERMISSION_WRITE);
-
-
-        UART_SERVICE.addCharacteristic(TX_READ_CHAR);
-        UART_SERVICE.addCharacteristic(RX_WRITE_CHAR);
-
-        mGattServer.addService(UART_SERVICE);
-
-/*
-        //SERVICIO DE LA PUERTA
-        BluetoothGattService DOOR_SERVICE =new BluetoothGattService(DOORProfile.DOOR_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-
-        BluetoothGattCharacteristic DOOR_READ_WRITE_CHAR =
-                new BluetoothGattCharacteristic(DOORProfile.DOOR_READ_WRITE_CHAR,
-                        //write permissions
-                        BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_READ ,
-                        BluetoothGattCharacteristic.PERMISSION_WRITE | BluetoothGattCharacteristic.PERMISSION_READ);
-
-        BluetoothGattDescriptor DOOR_READ_WRITE_DESC =
-                new BluetoothGattDescriptor(DOORProfile.DOOR_READ_WRITE_DESCRIPTOR,
-                        BluetoothGattDescriptor.PERMISSION_READ );
-        DOOR_READ_WRITE_DESC.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-
-        initDoorState();
-        DOOR_READ_WRITE_CHAR.setValue(hexStringToByteArray("0x00"));
-
-
-
-        DOOR_READ_WRITE_CHAR.addDescriptor(DOOR_READ_WRITE_DESC);
-
-        DOOR_SERVICE.addCharacteristic(DOOR_READ_WRITE_CHAR);
-        mGattServer.addService(DOOR_SERVICE);
-        Log.d(Constants.TAG,"Valor inicial de door_read_write: "+bytesToHex(DOOR_READ_WRITE_CHAR.getValue()));
-
-
-    }
-*/
-
-    /*
-     * Initialize the advertiser
-     */
-    /*
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void startAdvertising() {
-        if (mBluetoothLeAdvertiser == null) return;
-
-        AdvertiseSettings settings = new AdvertiseSettings.Builder()
-                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
-                .setConnectable(true)
-                .setTimeout(0)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
-                .build();
-
-
-        AdvertiseData data = new AdvertiseData.Builder()
-                .setIncludeDeviceName(true)             //Si el nombre es demasiado largo poner a false o cambiar el nombre del periferico desde sus ajustes bluetooth
-                //.addServiceUuid(new ParcelUuid(UARTProfile.UART_SERVICE))
-                .addServiceUuid(new ParcelUuid(DOORProfile.UART_SERVICE))
-                .build();
-
-        mBluetoothLeAdvertiser.startAdvertising(settings, data, mAdvertiseCallback);
-
-    }
-/*
-
-    private void postDeviceChange(final BluetoothDevice device, final boolean toAdd) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                //This will add the item to our list and update the adapter at the same time.
-                if (toAdd) {
-                    if (mConnectedDevicesAdapter.getPosition(device) < 0){
-                        mConnectedDevicesAdapter.add(device);
-                    }
-
-                } else {
-                    mConnectedDevicesAdapter.remove(device);
-                }
-
-            }
-        });
-    }
-*/
-
-    /*
-     * Terminate the server and any running callbacks
-     */
-    /*
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void shutdownServer() {
-        //mHandler.removeCallbacks(mNotifyRunnable);
-
-        if (mGattServer == null) return;
-
-        mGattServer.close();
-    }
-
-    */
-/*
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void stopAdvertising() {
-
-        if(mBluetoothLeAdvertiser == null) return;
-
-        mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
-
-
-
-    }
-*/
-//        private Runnable mNotifyRunnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                mHandler.postDelayed(this, 2000);
-//            }
-//        };
-
-
-    /* Callback handles all incoming requests from GATT clients.
-     * From connections to read/write requests.
-     */
-    /*
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback() {
-        @Override
-        public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-            super.onConnectionStateChange(device, status, newState);
-            Log.i(TAG, "onConnectionStateChange PuertaTProfile"
-                    +DOORProfile.getStatusDescription(status)+" "
-                    +DOORProfile.getStateDescription(newState));
-
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                postDeviceChange(device, true);
-
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                postDeviceChange(device, false);
-            }
-        }
-
-        @Override
-        public void onServiceAdded(int status, BluetoothGattService service) {
-            Log.d("Start", "Our gatt server service was added.");
-            super.onServiceAdded(status, service);
-        }
-
-
-        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-        @Override
-        public void onCharacteristicReadRequest(BluetoothDevice device,
-                                                int requestId,
-                                                int offset,
-                                                BluetoothGattCharacteristic characteristic) {
-            super.onCharacteristicReadRequest(device, requestId, offset, characteristic);
-            Log.d(TAG, "READ called onCharacteristicReadRequest " + characteristic.getUuid().toString());
-
-            byte[] envio = bigIntToByteArray(0xAA);
-            if(DOORProfile.TX_READ_CHAR.equals(characteristic.getUuid())){
-                Log.d(TAG, "Dentro del request VALUE: "+ characteristic.getValue());
-
-                boolean result = mGattServer.sendResponse(device,
-                                        requestId,
-                                        BluetoothGatt.GATT_SUCCESS,
-                                0, characteristic.getValue());
-
-                if(result)
-                    Log.d(Constants.TAG, "RESULTADO VERDADERO");
-                else
-                    Log.d(Constants.TAG, "Resultado Falso");
-            }
-
-
-        }
-
-
-
-        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-        @Override
-        public void onCharacteristicWriteRequest(BluetoothDevice device,
-                                                 int requestId,
-                                                 BluetoothGattCharacteristic characteristic,
-                                                 boolean preparedWrite,
-                                                 boolean responseNeeded,
-                                                 int offset,
-                                                 byte[] value) {
-            super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value);
-            Log.i(TAG, "onCharacteristicWriteRequest "+characteristic.getUuid().toString());
-/*
-            if (UARTProfile.RX_WRITE_CHAR.equals(characteristic.getUuid())) {
-
-                //IMP: Copy the received value to storage
-                storage = value;
-                if (responseNeeded) {
-                    mGattServer.sendResponse(device,
-                            requestId,
-                            BluetoothGatt.GATT_SUCCESS,
-                            0,
-                            value);
-                    Log.d(TAG, "Received  data on "+characteristic.getUuid().toString());
-                    Log.d(TAG, "Received data"+ bytesToHex(value));
-
-                }
-
-                //IMP: Respond
-                sendOurResponse();
-
-
-
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "We received data", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-            /*
-            if (DOORProfile.RX_WRITE_CHAR.equals(characteristic.getUuid())) {
-
-                //IMP: Copy the received value to storage
-                storage = value;
-                if (responseNeeded) {
-                    mGattServer.sendResponse(device,
-                            requestId,
-                            BluetoothGatt.GATT_SUCCESS,
-                            0,
-                            value);
-                    Log.d(TAG, "Received  data on " + characteristic.getUuid().toString());
-                    Log.d(TAG, "Received data" + bytesToHex(value));
-
-
-                }
-            }
-            sendOurResponse();
-
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(MainActivity.this, "We received data", Toast.LENGTH_SHORT).show();
-                }
-            });
-           // Log.d(Constants.TAG,"Valor Final de door_read_write: "+bytesToHex(characteristic.getValue()));
-        }
-
-
-
-        @Override
-        public void onNotificationSent(BluetoothDevice device, int status)
-        {
-            Log.d("GattServer", "onNotificationSent");
-            super.onNotificationSent(device, status);
-        }
-
-
-        @Override
-        public void onDescriptorReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattDescriptor descriptor) {
-            Log.d("HELLO", "Our gatt server descriptor was read.");
-            super.onDescriptorReadRequest(device, requestId, offset, descriptor);
-            Log.d("DONE", "Our gatt server descriptor was read.");
-        }
-
-        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-        @Override
-        public void onDescriptorWriteRequest(BluetoothDevice device, int requestId, BluetoothGattDescriptor descriptor, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
-            Log.d("HELLO", "Our gatt server descriptor was written.");
-            super.onDescriptorWriteRequest(device, requestId, descriptor, preparedWrite, responseNeeded, offset, value);
-            Log.d("DONE", "Our gatt server descriptor was written.");
-
-            //NOTE: Its important to send response. It expects response else it will disconnect
-            if (responseNeeded) {
-                mGattServer.sendResponse(device,
-                        requestId,
-                        BluetoothGatt.GATT_SUCCESS,
-                        0,
-                        value);
-
-            }
-
-        }
-*/
-  /*      end of gatt server
-    };
-*/
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
@@ -511,6 +100,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mLocalTimeView = (TextView) findViewById(R.id.text_time);
+
 
         // Devices with a display should not go to sleep
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -531,8 +121,15 @@ public class MainActivity extends Activity {
         } else {
             Log.d(TAG, "Bluetooth enabled...starting services");
             startAdvertising();
-            startServer();
+            try {
+                startServer();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+        estudioSodium();
+
+
     }
 
     @Override
@@ -593,7 +190,6 @@ public class MainActivity extends Activity {
      * Listens for system time changes and triggers a notification to
      * Bluetooth subscribers.
      */
-
     private BroadcastReceiver mTimeReceiver = new BroadcastReceiver() {
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
         @Override
@@ -601,6 +197,7 @@ public class MainActivity extends Activity {
 
             notifyRegisteredDevices();
             updateLocalUi();
+
         }
     };
 
@@ -617,7 +214,11 @@ public class MainActivity extends Activity {
             switch (state) {
                 case BluetoothAdapter.STATE_ON:
                     startAdvertising();
-                    startServer();
+                    try {
+                        startServer();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case BluetoothAdapter.STATE_OFF:
                     stopServer();
@@ -665,9 +266,13 @@ public class MainActivity extends Activity {
                     .build();
         }
 
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mBluetoothLeAdvertiser
                     .startAdvertising(settings, data, mAdvertiseCallback);
+            //mBluetoothLeAdvertiser
+              //      .startAdvertising(settings,datapairing,mAdvertiseCallback);
         }
     }
 
@@ -679,6 +284,7 @@ public class MainActivity extends Activity {
         if (mBluetoothLeAdvertiser == null) return;
 
         mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
+
     }
 
     /**
@@ -686,7 +292,7 @@ public class MainActivity extends Activity {
      * from the Time Profile.
      */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void startServer() {
+    private void startServer() throws InterruptedException {
         mGattServer = mBluetoothManager.openGattServer(this, mGattServerCallback);
         if (mGattServer == null) {
             Log.w(TAG, "Unable to create GATT server");
@@ -694,9 +300,14 @@ public class MainActivity extends Activity {
         }
 
         mGattServer.addService(DOORProfile.createUartService());
+        TimeUnit.SECONDS.sleep(1);
+        mGattServer.addService(pairingService);
+
 
         // Initialize the local UI
         updateLocalUi();
+
+
     }
 
     /**
@@ -722,8 +333,33 @@ public class MainActivity extends Activity {
             for (byte byteChar : data)
                 stringBuilder.append(String.format("%02X ", byteChar));
             mLocalTimeView.setText(bytesToHex(data));
+
+
         }
     }
+
+
+    private static String asciiToHex(String asciiStr) {
+        char[] chars = asciiStr.toCharArray();
+        StringBuilder hex = new StringBuilder();
+        for (char ch : chars) {
+            hex.append(Integer.toHexString((int) ch));
+        }
+
+        return hex.toString();
+    }
+
+    private static String hexToAscii(String hexStr) {
+        StringBuilder output = new StringBuilder("");
+
+        for (int i = 0; i < hexStr.length(); i += 2) {
+            String str = hexStr.substring(i, i + 2);
+            output.append((char) Integer.parseInt(str, 16));
+        }
+
+        return output.toString();
+    }
+
 
 
     /**
@@ -792,6 +428,7 @@ public class MainActivity extends Activity {
         public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset,
                                                 BluetoothGattCharacteristic characteristic) {
             long now = System.currentTimeMillis();
+            Log.d(TAG, "Entra en onCharacteristic");
             //String sendval = "0xAA";
             if (DOORProfile.TX_READ_CHAR.equals(characteristic.getUuid())) {
                 Log.i(TAG, "Read CurrentTime");
@@ -823,10 +460,9 @@ public class MainActivity extends Activity {
                                                  int offset,
                                                  byte[] value) {
             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value);
-            Log.i(TAG, "onCharacteristicWriteRequest "+characteristic.getUuid().toString());
+            Log.i(TAG, "onCharacteristicWriteRequest SERVICE UUID"+characteristic.getUuid().toString());
             Log.d(TAG, "oNcHARACTERISTICWRITEREQUEST CharacteristicValue:"+ characteristic.getValue());
             Log.d(TAG, "oNcHARACTERISTICWRITEREQUEST Value:"+ value);
-
 
 
             if (DOORProfile.TX_READ_CHAR.equals(characteristic.getUuid())) {
@@ -843,12 +479,47 @@ public class MainActivity extends Activity {
                             value);
                     Log.d(TAG, "Received  data on "+characteristic.getUuid().toString());
                     Log.d(TAG, "Received data"+ bytesToHex(value));
+                    Log.d(Constants.TAG,"Valor Final de door_read_write: "+bytesToHex(characteristic.getValue()));
 
                 }
 
             }
 
-           Log.d(Constants.TAG,"Valor Final de door_read_write: "+bytesToHex(characteristic.getValue()));
+            if (DOORProfile.AUTHORIZATION_CHAR.equals(characteristic.getUuid())) {
+                Log.d(TAG, "DENTRO DE AUTHORIZATION_CHAR");
+               //cadena en la que compruebo el comando
+                String comando="";
+                //IMP: Copy the received value to storage
+                storage = value;
+               for(int i = 0; i < REQUEST_COMAND_SIZE; i++){
+                   comando +=value[i];
+               }
+
+               if(comando == "0010"){
+
+                   comando = "";
+
+                   for(int i = REQUEST_COMAND_SIZE; i < PUBLIC_KEY_COMAND_SIZE; i++){
+                       comando +=value[i];
+                   }
+
+                   if(comando == "0030"){
+                       if (responseNeeded) {
+                           characteristic.setValue(publicKey.toBytes());
+                           mGattServer.sendResponse(device,
+                                   requestId,
+                                   BluetoothGatt.GATT_SUCCESS,
+                                   0,
+                                   publicKey.toBytes());
+                           Log.d(TAG, "Received  data on "+characteristic.getUuid().toString());
+                           Log.d(TAG, "Received data"+ bytesToHex(value));
+                           Log.d(Constants.TAG,"Valor de la public key: "+bytesToHex(characteristic.getValue()));
+
+                       }
+                   }
+               }
+            }
+
         }
 
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -952,6 +623,31 @@ public class MainActivity extends Activity {
 
     }
 */
+
+
+
+    public void estudioSodium(){
+        NaCl.sodium();
+        byte[] seed = new Random().randomBytes(SodiumConstants.SECRETKEY_BYTES);
+        KeyPair key = new KeyPair(seed);
+        if(key.getPrivateKey() != null){
+            privateKey = key.getPrivateKey();
+            Log.d(TAG, "Private Key "+key.getPrivateKey());
+        }
+        if(key.getPublicKey() != null){
+            Log.d(TAG, "Public Key "+key.getPublicKey());
+        }
+    }
+
+    public PrivateKey getPrivateKey(){
+        return privateKey;
+    }
+
+    public PublicKey getPublicKey(){
+        return publicKey;
+    }
+
+
 
 
 

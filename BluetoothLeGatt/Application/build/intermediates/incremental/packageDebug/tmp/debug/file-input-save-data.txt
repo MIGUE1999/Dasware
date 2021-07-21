@@ -1,7 +1,23 @@
 #Internal package file, do not edit.
-#Fri Jun 04 14:44:18 CEST 2021
+#Tue Jul 20 11:56:40 CEST 2021
+2.base=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/transforms/mergeJniLibs/debug/1
+0.path=lib/x86_64/libsodiumjni.so
+2.baseType=DIRECTORY
+3.base=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/transforms/mergeJniLibs/debug/1
+2.set=NATIVE_RESOURCE
+1.path=lib/x86/libsodiumjni.so
+4.base=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/dex/debug/mergeDexDebug/out
+count=5
+2.path=lib/armeabi-v7a/libsodiumjni.so
+4.set=DEX
+3.path=lib/arm64-v8a/libsodiumjni.so
+3.baseType=DIRECTORY
+1.set=NATIVE_RESOURCE
+4.path=classes.dex
+1.baseType=DIRECTORY
+0.base=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/transforms/mergeJniLibs/debug/1
 0.baseType=DIRECTORY
-0.base=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/dex/debug/mergeDexDebug/out
-0.path=classes.dex
-0.set=DEX
-count=1
+3.set=NATIVE_RESOURCE
+1.base=/home/migue/Escritorio/universidad/CUARTO/PRACTICAS EMPRESA/Dasware/Dasware/BluetoothLeGatt/Application/build/intermediates/transforms/mergeJniLibs/debug/1
+4.baseType=DIRECTORY
+0.set=NATIVE_RESOURCE

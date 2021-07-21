@@ -18,4 +18,11 @@
         android:gravity="center"
         android:textSize="56dp"
         tools:text="0"/>
-    </FrameLayout>
+
+    <TextView
+        android:id="@+id/textViewClientWrite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Esperando texto" />
+
+</FrameLayout>

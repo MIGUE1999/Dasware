@@ -34,6 +34,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
+import org.libsodium.jni.*;
+
 
 import java.lang.invoke.ConstantCallSite;
 import java.util.List;
@@ -45,13 +47,16 @@ import java.util.UUID;
  */
 public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
-
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
     private int mConnectionState = STATE_DISCONNECTED;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
+
+    private static Sodium sodium;
+
+
 
 
 
@@ -157,6 +162,7 @@ public class BluetoothLeService extends Service {
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
+
     }
 
     private void broadcastUpdate(final String action,
@@ -381,6 +387,8 @@ public class BluetoothLeService extends Service {
         return mReadCharacteristic;
     }
 
+    //Distintos Write characteristics
+
     public void writeCustomCharacteristic(String value) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -404,6 +412,34 @@ public class BluetoothLeService extends Service {
         }
     }
 
+    public void writePairingService(String value){
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+
+        /*check if the service is available on the device*/
+
+        BluetoothGattService mCustomService =  mBluetoothGatt.getService(ServerUUIDS.KEYTURNER_PAIRING_SERVICE);
+        if(mCustomService == null){
+            Log.w(TAG, "Custom BLE Service not found");
+            return;
+        }
+
+        /*get the authorization characteristic from the service*/
+
+        BluetoothGattCharacteristic mWriteCharacteristic = mCustomService.getCharacteristic(ServerUUIDS.AUTHORIZATION_CHAR);
+        //mWriteCharacteristic.setValue(value,android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8,0);
+        Log.d(TAG, "El valor que se cambia es: "+ value);
+        mWriteCharacteristic.setValue(value);
+        Log.d("TAG","VALOR DE AUTHORIZATION CUSTOM CHARACTERISTIC. "+ bytesToHex(mWriteCharacteristic.getValue()));
+        if(mBluetoothGatt.writeCharacteristic(mWriteCharacteristic) == false){
+            Log.w(TAG, "Failed to write characteristic");
+        }
+
+    }
+
+    //Conversores de datos
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
     //Helper function converts byte array to hex string
@@ -417,6 +453,7 @@ public class BluetoothLeService extends Service {
         }
         return new String(hexChars);
     }
+
 
 
 

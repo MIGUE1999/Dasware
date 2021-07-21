@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import java.security.KeyPairGenerator;
 import java.util.UUID;
 
 
@@ -34,7 +35,7 @@ public class DOORProfile {
     public static UUID RX_WRITE_CHAR = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
     //TX Read Notify
     //readchar=currentime
-    public static UUID TX_READ_CHAR = UUID.fromString("00002a2b-0000-1000-8000-00805f9b34fb");
+    public static UUID TX_READ_CHAR = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
     public static UUID CLIENT_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     public final static int DESCRIPTOR_PERMISSION = BluetoothGattDescriptor.PERMISSION_WRITE;
 
@@ -42,6 +43,14 @@ public class DOORProfile {
     public static  byte[]  door_state= state.getBytes();  //0 cerrado 1 abierto
     public static final byte abierto = (byte) 1;
     public static final byte cerrado = (byte) 0;
+
+    //AUTHORIZATION APP
+
+    //Service UUID to expose our UART characteristics
+    public static UUID KEYTURNER_PAIRING_SERVICE = UUID.fromString("6e400011-b5a3-f393-e0a9-e50e24dcca9e");
+    //AUTHORIZATION characteristic Propierties: WRITE & INDICATE
+    public static UUID AUTHORIZATION_CHAR = UUID.fromString("00002a3b-0000-1000-8000-00805f9b34fb");
+
 
 
 
@@ -105,12 +114,16 @@ public class DOORProfile {
         // Current Time characteristic
         BluetoothGattCharacteristic read_char = new BluetoothGattCharacteristic(TX_READ_CHAR,
                 //Read-only characteristic, supports notifications
-                BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY | BluetoothGattCharacteristic.PROPERTY_WRITE,
+                BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY| BluetoothGattCharacteristic.PROPERTY_WRITE,
                 BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE);
+
+        read_char.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+
         BluetoothGattDescriptor configDescriptor = new BluetoothGattDescriptor(CLIENT_CONFIG,
                 //Read/write descriptor
                 BluetoothGattDescriptor.PERMISSION_READ | BluetoothGattDescriptor.PERMISSION_WRITE);
         read_char.addDescriptor(configDescriptor);
+        Log.d("CreateUartService", "valor estado"+ getDoorState());
         read_char.setValue(getDoorState());
 
 
@@ -120,6 +133,28 @@ public class DOORProfile {
         return service;
     }
 
+
+    /**
+     * Return a configured {@link BluetoothGattService} instance for the
+     * KeyTurner Service.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public static BluetoothGattService createKeyTurnerPairingService() {
+
+        BluetoothGattService service = new BluetoothGattService(KEYTURNER_PAIRING_SERVICE,
+                BluetoothGattService.SERVICE_TYPE_PRIMARY);
+
+        // Authorization characteristic
+        BluetoothGattCharacteristic authorization_char = new BluetoothGattCharacteristic(AUTHORIZATION_CHAR,
+                //Write characteristic, supports indications
+                BluetoothGattCharacteristic.PROPERTY_INDICATE | BluetoothGattCharacteristic.PROPERTY_NOTIFY | BluetoothGattCharacteristic.PROPERTY_WRITE,
+                BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE );
+        authorization_char.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+
+        service.addCharacteristic(authorization_char);
+
+        return service;
+    }
 
 
 }

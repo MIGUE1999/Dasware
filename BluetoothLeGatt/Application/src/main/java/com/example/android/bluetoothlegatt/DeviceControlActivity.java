@@ -35,7 +35,10 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
-import java.security.PublicKey;
+import org.libsodium.jni.Sodium;
+import org.libsodium.jni.keys.PrivateKey;
+import org.libsodium.jni.keys.PublicKey;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +68,13 @@ public class DeviceControlActivity extends Activity {
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
+
+    private PrivateKey centralPrivateKey = null;
+    private PublicKey centralPublicKey = null;
+    private byte[] peripheralPrivateKey = null;
+    private byte[] peripheralPublicKey = null;
+    private byte[] sharedKey = null;
+    Criptografia cripto;
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
@@ -178,6 +188,11 @@ public class DeviceControlActivity extends Activity {
     mConnectionState = (TextView) findViewById(R.id.connection_state);
     */
         mDataField = (TextView) findViewById(R.id.data_value);
+
+        cripto = new Criptografia();
+        cripto.generateKeyPair();
+        centralPrivateKey = cripto.getPrivateKey();
+        centralPublicKey = cripto.getPublicKey();
 
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -319,37 +334,73 @@ public class DeviceControlActivity extends Activity {
         return intentFilter;
     }
 
+
+
     public void onClickWrite(View v) throws InterruptedException {
         if (mBluetoothLeService != null) {
 
             if(cerrado) {
-                mBluetoothLeService.writeCustomCharacteristic("0xBB");
-                //authorizeApp();
+                //mBluetoothLeService.writeCustomCharacteristic("0xBB");
+                authorizeApp();
                 cerrado=false;
+                Log.d(TAG, "Creando KeyPair...");
+                peripheralPrivateKey = mBluetoothLeService.getPeripheralPrivateKey();
+                peripheralPublicKey = mBluetoothLeService.getPeripheralPublicKey();
+                Log.d(TAG, "Peripheral Private Key"+ peripheralPrivateKey);
+                Log.d(TAG, "Peripheral Public Key"+ peripheralPublicKey);
+
 
             }else{
-                mBluetoothLeService.writeCustomCharacteristic("0xAA");
-                //authorizeApp();
+                //mBluetoothLeService.writeCustomCharacteristic("0xAA");
+                authorizeApp();
                 cerrado=true;
             }
-            TimeUnit.SECONDS.sleep(1);
-            readMainCharacteristic();
+            //TimeUnit.SECONDS.sleep(1);
+            //readAuthorizeCharacteristic();
         }
     }
 
-    public void authorizeApp(){
+
+
+    public void onClickRead(View v) throws InterruptedException {
+        if(mBluetoothLeService != null) {
+            //readAuthorizeCharacteristic();
+
+
+            /* SEND PUBLICKEY
+            String code="0300";
+            cripto.generateNonce();
+            code = code + cripto.getPublicKey() + BluetoothLeService.bytesToHex(cripto.getNonce());
+            Log.d(TAG, "EL codigo es: "+ code);
+            mBluetoothLeService.writePairingService(code);
+            */
+
+            authorizeApp();
+        }
+
+    }
+
+
+    public void authorizeApp() throws InterruptedException {
 
         String code = "0100030027A7";
 
         mBluetoothLeService.writePairingService(code);          //Request Data Public Key
+        TimeUnit.SECONDS.sleep(1);
+        readAuthorizeCharacteristic();
+        TimeUnit.SECONDS.sleep(1);
 
-    }
+        //comprobacion diffieHellman
+            peripheralPublicKey = mBluetoothLeService.getPeripheralPublicKey();
+            Log.d(TAG, "Peripheral Public Key: " + BluetoothLeService.bytesToHex(peripheralPublicKey));
 
-    public void onClickRead(View v){
-        if(mBluetoothLeService != null) {
-            readMainCharacteristic();
+            sendPublicKey();
 
-        }
+            byte[] shared_key_local = new byte[Sodium.crypto_core_hsalsa20_outputbytes()];
+            shared_key_local = cripto.diffieHellman(peripheralPublicKey);
+
+            sharedKey = shared_key_local;
+
 
     }
 
@@ -381,4 +432,49 @@ public class DeviceControlActivity extends Activity {
             }
 
     }
+
+    public void readAuthorizeCharacteristic(){
+
+        BluetoothGattCharacteristic characteristic = mBluetoothLeService.readAuthorizeCharacteristic();
+
+        if(characteristic == null){
+            Log.d(TAG, "OnClickRead: ERROR on readAuthorizeCharacteristic");
+        }
+        else{
+            final int charaProp = characteristic.getProperties();
+            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                // If there is an active notification on a characteristic, clear
+                // it first so it doesn't update the data field on the user interface.
+                if (mNotifyCharacteristic != null) {
+                    mBluetoothLeService.setCharacteristicNotification(
+                            mNotifyCharacteristic, false);
+                    mNotifyCharacteristic = null;
+                }
+                mBluetoothLeService.readCharacteristic(characteristic);
+            }
+            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                mNotifyCharacteristic = characteristic;
+                mBluetoothLeService.setCharacteristicNotification(
+                        characteristic, true);
+            }
+
+        }
+
+    }
+
+    public void sendPublicKey() throws InterruptedException {
+
+            String code="0300";
+            cripto.generateNonce();
+            code = code + cripto.getPublicKey() + BluetoothLeService.bytesToHex(cripto.getNonce());
+            Log.d(TAG, "EL codigo es: "+ code);
+            mBluetoothLeService.writePairingService(code);
+
+    }
+
+    public void handleNukiMessages(){
+
+    }
+
+
 }

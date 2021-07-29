@@ -35,6 +35,8 @@ import android.os.IBinder;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import org.libsodium.jni.*;
+import org.libsodium.jni.keys.PrivateKey;
+import org.libsodium.jni.keys.PublicKey;
 
 
 import java.lang.invoke.ConstantCallSite;
@@ -56,6 +58,8 @@ public class BluetoothLeService extends Service {
 
     private static Sodium sodium;
 
+    private  byte[] peripheralPubKey=null;
+    private  byte[] peripheralPrivKey=null;
 
 
 
@@ -119,6 +123,7 @@ public class BluetoothLeService extends Service {
             }
         }
 
+
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
@@ -126,10 +131,18 @@ public class BluetoothLeService extends Service {
 
                 Log.d(ServerUUIDS.TAG, "ON READ STATUS:"+ status);
                 Log.d(ServerUUIDS.TAG, "El valor on characteristic read es: "+ bytesToHex(characteristic.getValue()));
-            Log.d(ServerUUIDS.TAG, "El valor on characteristic read es: "+ bytesToHex(characteristic.getValue()));
 
-
-
+            if(characteristic.getUuid().equals(ServerUUIDS.AUTHORIZATION_CHAR) && peripheralPubKey == null)
+                peripheralPubKey = characteristic.getValue();
+/*
+            if(characteristic.getUuid().equals(ServerUUIDS.AUTHORIZATION_CHAR) && pubKey == null && privKey == null){
+                Log.d(ServerUUIDS.TAG, "ENTRA BIEN");
+                Criptografia cripto = new Criptografia();
+                cripto.generateKeyPair();
+                pubKey = cripto.getPublicKey();
+                privKey = cripto.getPrivateKey();
+            }
+            */
 
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
 
@@ -142,7 +155,7 @@ public class BluetoothLeService extends Service {
             Log.d(ServerUUIDS.TAG, "onCharacteristicWrite");
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.d(ServerUUIDS.TAG, "onCharacteristicWrite: VALUE: "+ bytesToHex(characteristic.getValue()));
+                Log.d(ServerUUIDS.TAG, "onCharacteristicWrite: VALUE: "+ hexToAscii(bytesToHex(characteristic.getValue())));
             } else {
                 Log.d(ServerUUIDS.TAG, "characteristic write err:" + status);
 
@@ -387,6 +400,30 @@ public class BluetoothLeService extends Service {
         return mReadCharacteristic;
     }
 
+    public BluetoothGattCharacteristic readAuthorizeCharacteristic() {
+
+        Log.d(ServerUUIDS.TAG, "Dentro de readAuthorizeCharacteristic");
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return null;
+        }
+        /*check if the service is available on the device*/
+        BluetoothGattService mCustomService = mBluetoothGatt.getService(ServerUUIDS.KEYTURNER_PAIRING_SERVICE);
+        if(mCustomService == null){
+            Log.w(TAG, "Custom BLE Service not found");
+            return null;
+        }
+        /*get the read characteristic from the service*/
+        BluetoothGattCharacteristic mReadCharacteristic = mCustomService.getCharacteristic(ServerUUIDS.AUTHORIZATION_CHAR);
+        if(mReadCharacteristic == null){
+            Log.w(TAG, "ReadCustomCharacteristic: Failed to read characteristic because is NULL");
+            return null;
+        }
+
+        Log.d(ServerUUIDS.TAG, "ReadAuthorizeCharacteristic: Realizado con Exito");
+        return mReadCharacteristic;
+    }
+
     //Distintos Write characteristics
 
     public void writeCustomCharacteristic(String value) {
@@ -432,7 +469,7 @@ public class BluetoothLeService extends Service {
         //mWriteCharacteristic.setValue(value,android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8,0);
         Log.d(TAG, "El valor que se cambia es: "+ value);
         mWriteCharacteristic.setValue(value);
-        Log.d("TAG","VALOR DE AUTHORIZATION CUSTOM CHARACTERISTIC. "+ bytesToHex(mWriteCharacteristic.getValue()));
+        Log.d("TAG","VALOR DE AUTHORIZATION CUSTOM CHARACTERISTIC. "+ hexToAscii(bytesToHex(mWriteCharacteristic.getValue())));
         if(mBluetoothGatt.writeCharacteristic(mWriteCharacteristic) == false){
             Log.w(TAG, "Failed to write characteristic");
         }
@@ -454,7 +491,32 @@ public class BluetoothLeService extends Service {
         return new String(hexChars);
     }
 
+    private static String asciiToHex(String asciiStr) {
+        char[] chars = asciiStr.toCharArray();
+        StringBuilder hex = new StringBuilder();
+        for (char ch : chars) {
+            hex.append(Integer.toHexString((int) ch));
+        }
 
+        return hex.toString();
+    }
 
+    public static String hexToAscii(String hexStr) {
+        StringBuilder output = new StringBuilder("");
+
+        for (int i = 0; i < hexStr.length(); i += 2) {
+            String str = hexStr.substring(i, i + 2);
+            output.append((char) Integer.parseInt(str, 16));
+        }
+
+        return output.toString();
+    }
+//Obtencion de llaves
+    public byte[] getPeripheralPrivateKey(){
+        return peripheralPrivKey;
+    }
+    public byte[] getPeripheralPublicKey(){
+        return peripheralPubKey;
+    }
 
 }

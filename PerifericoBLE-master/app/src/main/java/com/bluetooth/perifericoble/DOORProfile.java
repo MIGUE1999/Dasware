@@ -147,9 +147,11 @@ public class DOORProfile {
         // Authorization characteristic
         BluetoothGattCharacteristic authorization_char = new BluetoothGattCharacteristic(AUTHORIZATION_CHAR,
                 //Write characteristic, supports indications
-                BluetoothGattCharacteristic.PROPERTY_INDICATE | BluetoothGattCharacteristic.PROPERTY_NOTIFY | BluetoothGattCharacteristic.PROPERTY_WRITE,
+                BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY | BluetoothGattCharacteristic.PROPERTY_WRITE,
                 BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE );
         authorization_char.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+
+        authorization_char.setValue(getDoorState());
 
         service.addCharacteristic(authorization_char);
 

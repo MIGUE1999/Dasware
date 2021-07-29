@@ -79,11 +79,14 @@ public class MainActivity extends Activity {
 
     private Set<BluetoothDevice> mRegisteredDevices = new HashSet<>();
 
-    private PublicKey publicKey;
-    private PrivateKey privateKey;
-    public final int REQUEST_COMAND_SIZE=4;
-    public final int PUBLIC_KEY_COMAND_SIZE=9;
+   private Criptografia cripto = new Criptografia();
+    private byte[] centralPublicKey = null;
+    private byte[] sharedKey = null;
 
+    public final int REQUEST_COMAND_SIZE=4;
+    public final int PUBLIC_KEY_COMAND_SIZE=8;
+    public final int KEY_SIZE = 68;
+    public final int NONCE_SIZE = 72;
 
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -127,7 +130,7 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
         }
-        estudioSodium();
+        cripto.generateKeyPair();
 
 
     }
@@ -328,6 +331,7 @@ public class MainActivity extends Activity {
 
         final byte[] data = DOORProfile.getDoorState();
         Log.d(TAG, "Valor del door: "+ data);
+        Log.d(TAG, "Valor de la public key en la carateristica: "+ bytesToHex(storage));
         if (data != null && data.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(data.length);
             for (byte byteChar : data)
@@ -339,26 +343,7 @@ public class MainActivity extends Activity {
     }
 
 
-    private static String asciiToHex(String asciiStr) {
-        char[] chars = asciiStr.toCharArray();
-        StringBuilder hex = new StringBuilder();
-        for (char ch : chars) {
-            hex.append(Integer.toHexString((int) ch));
-        }
 
-        return hex.toString();
-    }
-
-    private static String hexToAscii(String hexStr) {
-        StringBuilder output = new StringBuilder("");
-
-        for (int i = 0; i < hexStr.length(); i += 2) {
-            String str = hexStr.substring(i, i + 2);
-            output.append((char) Integer.parseInt(str, 16));
-        }
-
-        return output.toString();
-    }
 
 
 
@@ -428,18 +413,16 @@ public class MainActivity extends Activity {
         public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset,
                                                 BluetoothGattCharacteristic characteristic) {
             long now = System.currentTimeMillis();
-            Log.d(TAG, "Entra en onCharacteristic");
+            Log.d("OnCharReadReq", "Valor de la caracteristica: " + characteristic.getUuid());
             //String sendval = "0xAA";
-            if (DOORProfile.TX_READ_CHAR.equals(characteristic.getUuid())) {
-                Log.i(TAG, "Read CurrentTime");
+            if (DOORProfile.TX_READ_CHAR.equals(characteristic.getUuid()) || DOORProfile.AUTHORIZATION_CHAR.equals(characteristic.getUuid())) {
+
                 mGattServer.sendResponse(device,
                         requestId,
                         BluetoothGatt.GATT_SUCCESS,
                         0,
-                        characteristic.getValue())
-                ;
-            }
-             else {
+                        characteristic.getValue());
+            } else {
                 // Invalid characteristic
                 Log.w(TAG, "Invalid Characteristic Read: " + characteristic.getUuid());
                 mGattServer.sendResponse(device,
@@ -460,9 +443,9 @@ public class MainActivity extends Activity {
                                                  int offset,
                                                  byte[] value) {
             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value);
-            Log.i(TAG, "onCharacteristicWriteRequest SERVICE UUID"+characteristic.getUuid().toString());
-            Log.d(TAG, "oNcHARACTERISTICWRITEREQUEST CharacteristicValue:"+ characteristic.getValue());
-            Log.d(TAG, "oNcHARACTERISTICWRITEREQUEST Value:"+ value);
+
+            Log.i("onCharWriteReq", "Characteristic UUID: " + characteristic.getUuid().toString());
+            Log.d("onCharWriteReq", "Comando: " + hexToAscii(bytesToHex(value)));
 
 
             if (DOORProfile.TX_READ_CHAR.equals(characteristic.getUuid())) {
@@ -477,50 +460,85 @@ public class MainActivity extends Activity {
                             BluetoothGatt.GATT_SUCCESS,
                             0,
                             value);
-                    Log.d(TAG, "Received  data on "+characteristic.getUuid().toString());
-                    Log.d(TAG, "Received data"+ bytesToHex(value));
-                    Log.d(Constants.TAG,"Valor Final de door_read_write: "+bytesToHex(characteristic.getValue()));
+                    Log.d("OnCharWriteTX_R_CHAR", "Received data" + bytesToHex(value));
+                    Log.d("OnCharWriteTX_R_CHAR", "Valor Final de door_read_write: " + bytesToHex(characteristic.getValue()));
 
                 }
 
             }
 
             if (DOORProfile.AUTHORIZATION_CHAR.equals(characteristic.getUuid())) {
-                Log.d(TAG, "DENTRO DE AUTHORIZATION_CHAR");
-               //cadena en la que compruebo el comando
-                String comando="";
+                //cadena en la que compruebo el comando
+                String val = hexToAscii(bytesToHex(value));
+                String comando = "";
                 //IMP: Copy the received value to storage
                 storage = value;
-               for(int i = 0; i < REQUEST_COMAND_SIZE; i++){
-                   comando +=value[i];
-               }
 
-               if(comando == "0010"){
+                for (int i = 0; i < REQUEST_COMAND_SIZE; i++) {
+                    comando = comando + val.charAt(i);
+                }
 
-                   comando = "";
 
-                   for(int i = REQUEST_COMAND_SIZE; i < PUBLIC_KEY_COMAND_SIZE; i++){
-                       comando +=value[i];
-                   }
 
-                   if(comando == "0030"){
-                       if (responseNeeded) {
-                           characteristic.setValue(publicKey.toBytes());
-                           mGattServer.sendResponse(device,
-                                   requestId,
-                                   BluetoothGatt.GATT_SUCCESS,
-                                   0,
-                                   publicKey.toBytes());
-                           Log.d(TAG, "Received  data on "+characteristic.getUuid().toString());
-                           Log.d(TAG, "Received data"+ bytesToHex(value));
-                           Log.d(Constants.TAG,"Valor de la public key: "+bytesToHex(characteristic.getValue()));
+                switch (comando) {
+                    case "0100":
 
-                       }
-                   }
-               }
+                        comando = "";
+
+                        for (int i = REQUEST_COMAND_SIZE; i < PUBLIC_KEY_COMAND_SIZE; i++) {
+                            comando += val.charAt(i);
+                        }
+                        if (comando.equals("0300")) {
+                            if (responseNeeded) {
+                                characteristic.setValue(cripto.getPublicKey().toBytes());
+                                mGattServer.sendResponse(device,
+                                        requestId,
+                                        BluetoothGatt.GATT_SUCCESS,
+                                        0,
+                                        cripto.getPublicKey().toBytes());
+                                Log.d("OnCharWriteReq 01000300", "Valor de la Peripheral public key: " + bytesToHex(characteristic.getValue()));
+                                storage = characteristic.getValue();
+
+                            }
+                        }
+                        break;
+
+                    case "0300":
+                        comando = "";
+
+                        for (int i = REQUEST_COMAND_SIZE; i < KEY_SIZE; i++) {
+                            comando += val.charAt(i);
+                        }
+                        if (responseNeeded) {
+                            characteristic.setValue(hexStringToByteArray(comando));
+                            mGattServer.sendResponse(device,
+                                    requestId,
+                                    BluetoothGatt.GATT_SUCCESS,
+                                    0,
+                                    hexStringToByteArray(comando));
+                            Log.d(TAG, "Received  data on " + characteristic.getUuid().toString());
+                            Log.d("OnCharWriteReq 0300", "Valor de la Central public key: " + bytesToHex(characteristic.getValue()));
+                            centralPublicKey = characteristic.getValue();
+
+                            sharedKey = cripto.diffieHellman(centralPublicKey);
+
+                        }
+                        comando = "";
+
+                        for (int i = KEY_SIZE; i < NONCE_SIZE; i++) {
+                            comando += val.charAt(i);
+                        }
+                        Log.d(TAG, "El nonce es: "+ comando);
+                        break;
+                    default:
+                        Log.d("OnCHarWriteReq", "No coje bien Comando");
+                        break;
+
+                }
+
             }
-
         }
+
 
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
         @Override
@@ -626,33 +644,13 @@ public class MainActivity extends Activity {
 
 
 
-    public void estudioSodium(){
-        NaCl.sodium();
-        byte[] seed = new Random().randomBytes(SodiumConstants.SECRETKEY_BYTES);
-        KeyPair key = new KeyPair(seed);
-        if(key.getPrivateKey() != null){
-            privateKey = key.getPrivateKey();
-            Log.d(TAG, "Private Key "+key.getPrivateKey());
-        }
-        if(key.getPublicKey() != null){
-            Log.d(TAG, "Public Key "+key.getPublicKey());
-        }
-    }
-
-    public PrivateKey getPrivateKey(){
-        return privateKey;
-    }
-
-    public PublicKey getPublicKey(){
-        return publicKey;
-    }
-
 
 
 
 
 
     private byte[] storage = hexStringToByteArray("1111");
+
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
@@ -729,5 +727,25 @@ public class MainActivity extends Activity {
         }
     }
 
+    private static String asciiToHex(String asciiStr) {
+        char[] chars = asciiStr.toCharArray();
+        StringBuilder hex = new StringBuilder();
+        for (char ch : chars) {
+            hex.append(Integer.toHexString((int) ch));
+        }
+
+        return hex.toString();
+    }
+
+    private static String hexToAscii(String hexStr) {
+        StringBuilder output = new StringBuilder("");
+
+        for (int i = 0; i < hexStr.length(); i += 2) {
+            String str = hexStr.substring(i, i + 2);
+            output.append((char) Integer.parseInt(str, 16));
+        }
+
+        return output.toString();
+    }
 
 }

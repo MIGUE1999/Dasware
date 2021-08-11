@@ -35,6 +35,7 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
+import org.libsodium.jni.NaCl;
 import org.libsodium.jni.Sodium;
 import org.libsodium.jni.keys.PrivateKey;
 import org.libsodium.jni.keys.PublicKey;
@@ -73,8 +74,16 @@ public class DeviceControlActivity extends Activity {
     private PublicKey centralPublicKey = null;
     private byte[] peripheralPrivateKey = null;
     private byte[] peripheralPublicKey = null;
-    private byte[] sharedKey = null;
-    Criptografia cripto;
+
+    public static Criptografia cripto;
+    public static boolean challenge=false;
+    public static boolean controlPkey=false;
+    public static boolean authid=false;
+    public static boolean idconfirmation=false;
+
+
+
+
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
@@ -344,9 +353,7 @@ public class DeviceControlActivity extends Activity {
                 authorizeApp();
                 cerrado=false;
                 Log.d(TAG, "Creando KeyPair...");
-                peripheralPrivateKey = mBluetoothLeService.getPeripheralPrivateKey();
-                peripheralPublicKey = mBluetoothLeService.getPeripheralPublicKey();
-                Log.d(TAG, "Peripheral Private Key"+ peripheralPrivateKey);
+                peripheralPublicKey = cripto.getPeripheralPublicKeyBytes();
                 Log.d(TAG, "Peripheral Public Key"+ peripheralPublicKey);
 
 
@@ -376,6 +383,27 @@ public class DeviceControlActivity extends Activity {
             */
 
             authorizeApp();
+
+
+            challenge();
+            String r = concatenate();
+            cripto.calculateAuthenticator(r);
+            authorizationAuthenticator();
+            Log.d(TAG,"***********************************************************");
+
+            challenge();
+
+            r = concatenate();
+
+            cripto.calculateAuthenticator(r);
+
+            authorizationData();
+
+            authorizationId();
+
+            authorizationIdConfirmation();
+
+
         }
 
     }
@@ -384,22 +412,22 @@ public class DeviceControlActivity extends Activity {
     public void authorizeApp() throws InterruptedException {
 
         String code = "0100030027A7";
-
+        controlPkey=true;
         mBluetoothLeService.writePairingService(code);          //Request Data Public Key
         TimeUnit.SECONDS.sleep(1);
         readAuthorizeCharacteristic();
         TimeUnit.SECONDS.sleep(1);
+        controlPkey = false;
 
         //comprobacion diffieHellman
-            peripheralPublicKey = mBluetoothLeService.getPeripheralPublicKey();
-            Log.d(TAG, "Peripheral Public Key: " + BluetoothLeService.bytesToHex(peripheralPublicKey));
+            peripheralPublicKey = cripto.getPeripheralPublicKeyBytes();
+            Log.d(TAG, "Peripheral Public Key: " + cripto.bytesToHex(peripheralPublicKey));
 
             sendPublicKey();
 
             byte[] shared_key_local = new byte[Sodium.crypto_core_hsalsa20_outputbytes()];
-            shared_key_local = cripto.diffieHellman(peripheralPublicKey);
+            cripto.setSharedKey(cripto.diffieHellman(peripheralPublicKey));
 
-            sharedKey = shared_key_local;
 
 
     }
@@ -434,7 +462,6 @@ public class DeviceControlActivity extends Activity {
     }
 
     public void readAuthorizeCharacteristic(){
-
         BluetoothGattCharacteristic characteristic = mBluetoothLeService.readAuthorizeCharacteristic();
 
         if(characteristic == null){
@@ -466,15 +493,127 @@ public class DeviceControlActivity extends Activity {
 
             String code="0300";
             cripto.generateNonce();
-            code = code + cripto.getPublicKey() + BluetoothLeService.bytesToHex(cripto.getNonce());
+            code = code + cripto.getPublicKey() + cripto.bytesToHex(cripto.getNonce());
             Log.d(TAG, "EL codigo es: "+ code);
+            TimeUnit.SECONDS.sleep(1);
             mBluetoothLeService.writePairingService(code);
+            //Log.d("SendPublicKey", "Shared Key: "+ cripto.bytesToHex(cripto.getSharedKey()));
+            Log.d("SendPublicKey","Valor de Peri: "+cripto.bytesToHex(peripheralPublicKey)) ;
+            Log.d("SendPublicKey","Valor de Central: "+cripto.bytesToHex(centralPublicKey.toBytes())) ;
+
 
     }
 
-    public void handleNukiMessages(){
+    public void challenge() throws InterruptedException {
+        challenge = true;
+        String code="0400";
+        byte[] nonceChallenge = cripto.generateNonce64();
+        cripto.generateNonce();
+        Log.d(TAG, "Nonce Challenge: " + cripto.bytesToHex(nonceChallenge));
+
+        code = code + cripto.bytesToHex(nonceChallenge) + cripto.bytesToHex(cripto.getNonce());
+
+        Log.d("Challenge", "Code Challenge: " + code);
+
+        TimeUnit.SECONDS.sleep(1);
+        mBluetoothLeService.writePairingService(code);
+        TimeUnit.SECONDS.sleep(1);
+        //readAuthorizeCharacteristic();
+        //TimeUnit.SECONDS.sleep(1);
+        cripto.setChallenge(nonceChallenge);
+
+        challenge = false;
+
+
+        Log.d("Challenge","Valor de Peri: "+cripto.bytesToHex(peripheralPublicKey)) ;
+        Log.d("Challenge","Valor de Central: "+cripto.bytesToHex(centralPublicKey.toBytes())) ;
+        Log.d("Challenge","Valor de Challenge: "+ cripto.bytesToHex(cripto.getChallenge())) ;
+        Log.d("Challenge", "Shared Key: "+ cripto.bytesToHex(cripto.getSharedKey()));
+
 
     }
 
+    public String concatenate(){
+        String r;
+        r= cripto.bytesToHex(centralPublicKey.toBytes())+ cripto.bytesToHex(peripheralPublicKey) + cripto.bytesToHex(cripto.getChallenge());
+        Log.d("Concatenate","Valor de R: "+r) ;
+        Log.d("Concatenate", "Shared Key: "+ cripto.bytesToHex(cripto.getSharedKey()));
+        Log.d("Concatenate","Valor de Peri: "+cripto.bytesToHex(peripheralPublicKey)) ;
+        Log.d("Concatenate","Valor de Central: "+cripto.bytesToHex(centralPublicKey.toBytes())) ;
+
+        return r;
+    }
+
+
+
+    public void authorizationAuthenticator() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
+        String code="0500";
+        byte[] auth = cripto.getAuthenticator();
+        cripto.generateNonce();
+        code = code +  cripto.bytesToHex(auth) + cripto.bytesToHex(cripto.getNonce());
+        Log.d("authoriAuthenticator", "EL codigo es: "+ code);
+        Log.d("authoriAuthenticator", "Shared Key: "+ cripto.bytesToHex(cripto.getSharedKey()));
+        Log.d("authoriAuthenticator","Valor de Peri: "+cripto.bytesToHex(peripheralPublicKey)) ;
+        Log.d("authoriAuthenticator","Valor de Central: "+cripto.bytesToHex(centralPublicKey.toBytes())) ;
+
+        mBluetoothLeService.writePairingService(code);
+
+    }
+
+
+    public void authorizationData() throws InterruptedException {
+
+        TimeUnit.SECONDS.sleep(1);
+        String code="0600";
+
+        byte[] auth = cripto.getAuthenticator();
+        String idType= "00";
+        String appId = "00000000";
+        String name = "4D61726320285465737429000000000000000000000000000000000000000000";
+        byte[] nonceABF = cripto.generateNonce64();
+
+
+        cripto.generateNonce();
+        code = code +  cripto.bytesToHex(auth) + idType + appId + name + cripto.bytesToHex(nonceABF) + cripto.bytesToHex(cripto.getNonce());
+        Log.d("authoriData", "EL codigo es: "+ code);
+        Log.d("authoriData", "Shared Key: "+ cripto.bytesToHex(cripto.getSharedKey()));
+        Log.d("authoriData","Valor de Peri: "+cripto.bytesToHex(peripheralPublicKey)) ;
+        Log.d("authoriData","Valor de Central: "+cripto.bytesToHex(centralPublicKey.toBytes())) ;
+
+
+
+        mBluetoothLeService.writePairingService(code);
+    }
+
+    public void authorizationId() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
+
+        authid = true;
+        Log.d("authorizationId", "Detnro del authorization id");
+
+        readAuthorizeCharacteristic();
+        TimeUnit.SECONDS.sleep(1);
+        authid = false;
+
+    }
+
+    public void authorizationIdConfirmation() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(1);
+        idconfirmation=true;
+        String code="1E00";
+        String auth = cripto.bytesToHex(cripto.getAuthenticator());
+        String authid= cripto.bytesToHex(cripto.getAuthorizationId());
+
+        code = code + auth + authid;
+
+        mBluetoothLeService.writePairingService(code);
+        TimeUnit.SECONDS.sleep(1);
+
+        readAuthorizeCharacteristic();
+        TimeUnit.SECONDS.sleep(1);
+
+        idconfirmation=false;
+    }
 
 }

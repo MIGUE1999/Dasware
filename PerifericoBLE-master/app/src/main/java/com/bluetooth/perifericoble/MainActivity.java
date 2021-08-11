@@ -82,11 +82,25 @@ public class MainActivity extends Activity {
    private Criptografia cripto = new Criptografia();
     private byte[] centralPublicKey = null;
     private byte[] sharedKey = null;
+    private byte[] nonce64 = null;
+
+    User usuario;
+
+    private boolean verifyauth= false;
+    private ArrayList<User> usuarios = new ArrayList<User>();
 
     public final int REQUEST_COMAND_SIZE=4;
     public final int PUBLIC_KEY_COMAND_SIZE=8;
     public final int KEY_SIZE = 68;
     public final int NONCE_SIZE = 72;
+    public final int ID_TYPE_SIZE = 70;
+    public final int APP_ID_SIZE = 78;
+    public final int NAME_SIZE = 142;
+    public final int NONCE_ABF = 206;
+    public final int ID_CONFIRMATION = 76;
+    public boolean authid = false;
+
+
 
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -103,6 +117,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mLocalTimeView = (TextView) findViewById(R.id.text_time);
+
+        usuario = new User();
 
 
         // Devices with a display should not go to sleep
@@ -330,7 +346,7 @@ public class MainActivity extends Activity {
     private void updateLocalUi() {
 
         final byte[] data = DOORProfile.getDoorState();
-        Log.d(TAG, "Valor del door: "+ data);
+        Log.d(TAG, "Valor del door: "+ bytesToHex(data));
         Log.d(TAG, "Valor de la public key en la carateristica: "+ bytesToHex(storage));
         if (data != null && data.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(data.length);
@@ -415,7 +431,24 @@ public class MainActivity extends Activity {
             long now = System.currentTimeMillis();
             Log.d("OnCharReadReq", "Valor de la caracteristica: " + characteristic.getUuid());
             //String sendval = "0xAA";
-            if (DOORProfile.TX_READ_CHAR.equals(characteristic.getUuid()) || DOORProfile.AUTHORIZATION_CHAR.equals(characteristic.getUuid())) {
+
+            if(authid){
+                String comando = "0700";
+                String UUID = "12345678901234567890123456789012";
+                cripto.generateNonce();
+                comando = comando + bytesToHex(cripto.getAuthenticator()) + usuario.getAuthorizationId() + UUID + bytesToHex(cripto.generateNonce64()) + bytesToHex(cripto.getNonce());
+                Log.d("ONcharReadReq", "EL valor de 0700 es: " + comando);
+                characteristic.setValue(comando.getBytes());
+
+                mGattServer.sendResponse(device,
+                        requestId,
+                        BluetoothGatt.GATT_SUCCESS,
+                        0,
+                        comando.getBytes());
+
+                authid=false;
+            }
+            else if (DOORProfile.TX_READ_CHAR.equals(characteristic.getUuid()) || DOORProfile.AUTHORIZATION_CHAR.equals(characteristic.getUuid())) {
 
                 mGattServer.sendResponse(device,
                         requestId,
@@ -445,7 +478,7 @@ public class MainActivity extends Activity {
             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value);
 
             Log.i("onCharWriteReq", "Characteristic UUID: " + characteristic.getUuid().toString());
-            Log.d("onCharWriteReq", "Comando: " + hexToAscii(bytesToHex(value)));
+            Log.d("onCharWriteReq", "Comando: " + hexToAscii(bytesToHex(value)).toUpperCase());
 
 
             if (DOORProfile.TX_READ_CHAR.equals(characteristic.getUuid())) {
@@ -469,7 +502,7 @@ public class MainActivity extends Activity {
 
             if (DOORProfile.AUTHORIZATION_CHAR.equals(characteristic.getUuid())) {
                 //cadena en la que compruebo el comando
-                String val = hexToAscii(bytesToHex(value));
+                String val = hexToAscii(bytesToHex(value)).toUpperCase();
                 String comando = "";
                 //IMP: Copy the received value to storage
                 storage = value;
@@ -498,7 +531,7 @@ public class MainActivity extends Activity {
                                         cripto.getPublicKey().toBytes());
                                 Log.d("OnCharWriteReq 01000300", "Valor de la Peripheral public key: " + bytesToHex(characteristic.getValue()));
                                 storage = characteristic.getValue();
-
+                                comando="";
                             }
                         }
                         break;
@@ -521,6 +554,7 @@ public class MainActivity extends Activity {
                             centralPublicKey = characteristic.getValue();
 
                             sharedKey = cripto.diffieHellman(centralPublicKey);
+                            cripto.setSharedKey(sharedKey);
 
                         }
                         comando = "";
@@ -528,8 +562,164 @@ public class MainActivity extends Activity {
                         for (int i = KEY_SIZE; i < NONCE_SIZE; i++) {
                             comando += val.charAt(i);
                         }
-                        Log.d(TAG, "El nonce es: "+ comando);
+                        Log.d("OnCharWriteReq 0300", "El nonce es: "+ comando);
                         break;
+                    case "0400":
+                        comando = "";
+
+                        for (int i = REQUEST_COMAND_SIZE; i < KEY_SIZE; i++) {
+                            comando += val.charAt(i);
+                        }
+                        Log.d("OnCharWrite 0400", "Nonce 64: "+ comando);
+                        cripto.setChallenge(comando);
+
+                        if (responseNeeded) {
+                            characteristic.setValue(hexStringToByteArray(comando));
+                            mGattServer.sendResponse(device,
+                                    requestId,
+                                    BluetoothGatt.GATT_SUCCESS,
+                                    0,
+                                    hexStringToByteArray(comando));
+                        }
+                        nonce64= hexStringToByteArray(comando);
+                        comando = "";
+                        for (int i = KEY_SIZE; i < NONCE_SIZE; i++) {
+                            comando += val.charAt(i);
+                        }
+                        Log.d("OnCharWriteReq 0400", "El nonce es: "+ comando);
+
+                        String r = bytesToHex(centralPublicKey) + bytesToHex(cripto.getPublicKey().toBytes()) + bytesToHex(nonce64);
+                        Log.d("OnCharWriteReq 0400","El r es: "+ r);
+                        cripto.calculateAuthenticator(r);
+
+                        break;
+                    case "0500":
+                        comando = "";
+
+                        for (int i = REQUEST_COMAND_SIZE; i < KEY_SIZE; i++) {
+                            comando += val.charAt(i);
+                        }
+                        Log.d("OnCharWrite 0500", "Authorization: "+ comando);
+                        cripto.setChallenge(comando);
+
+
+                        if (responseNeeded) {
+                            characteristic.setValue(hexStringToByteArray(comando));
+                            mGattServer.sendResponse(device,
+                                    requestId,
+                                    BluetoothGatt.GATT_SUCCESS,
+                                    0,
+                                    hexStringToByteArray(comando));
+                        }
+
+                        byte[] auth= hexStringToByteArray(comando);
+                        Log.d("OnCharWriteReq 0500 ", "AUTH que llega: "+ bytesToHex(auth));
+                        Log.d("OnCharWriteReq 0500 ", "AUTH del periferico "+ bytesToHex(cripto.getAuthenticator()));
+
+
+                        if(bytesToHex(auth).equals(bytesToHex(cripto.getAuthenticator()))){
+                            verifyauth = true;
+                            comando = "";
+                            for (int i = KEY_SIZE; i < NONCE_SIZE; i++) {
+                                comando += val.charAt(i);
+                            }
+                            Log.d("OnCharWriteReq 0500 ", "El nonce es: "+ comando);
+                            Log.d("OnCharWriteReq 0500 ", "Verificacion Realizada con Exito");
+
+                        }
+                        else{
+                            verifyauth=false;
+                            Log.d("OnCharWriteReq 0500", "Error de Verificacion");
+                        }
+
+                        break;
+                    case "0600":
+                        comando = "";
+
+                        for (int i = REQUEST_COMAND_SIZE; i < KEY_SIZE; i++) {
+                            comando += val.charAt(i);
+                        }
+                        Log.d("OnCharWrite 0600", "Central Authorization: "+ comando);
+                        //cripto.setAuthenticator(hexStringToByteArray(comando));
+
+
+                        if (responseNeeded) {
+                            characteristic.setValue(hexStringToByteArray(comando));
+                            mGattServer.sendResponse(device,
+                                    requestId,
+                                    BluetoothGatt.GATT_SUCCESS,
+                                    0,
+                                    hexStringToByteArray(comando));
+                        }
+
+                        byte[] autho= hexStringToByteArray(comando);
+                        Log.d("OnCharWriteReq 0600 ", "AUTH que llega: "+ bytesToHex(autho));
+                        Log.d("OnCharWriteReq 0600 ", "AUTH del periferico "+ bytesToHex(cripto.getAuthenticator()));
+                        Log.d("OnCharWriteReq 0600 ", "Shared Key "+ bytesToHex(cripto.getSharedKey()));
+
+
+                        if(bytesToHex(autho).equals(bytesToHex(cripto.getAuthenticator()))){
+                            verifyauth = true;
+                            comando = "";
+
+                            //A paritr de aquí comienza el cambio.
+
+
+                            for (int i = KEY_SIZE; i < ID_TYPE_SIZE; i++) {
+                                comando += val.charAt(i);
+                            }
+                            Log.d("OnCharWriteReq 0600 ", "El ID TYPE es: "+ comando);
+                            usuario.setIdType(comando);
+
+                            comando="";
+                            for (int i = ID_TYPE_SIZE; i < APP_ID_SIZE; i++) {
+                                comando += val.charAt(i);
+                            }
+                            Log.d("OnCharWriteReq 0600 ", "El APP ID es: "+ comando);
+                            usuario.setAppId(comando);
+
+                            comando="";
+                            for (int i = APP_ID_SIZE; i < NAME_SIZE; i++) {
+                                comando += val.charAt(i);
+                            }
+                            Log.d("OnCharWriteReq 0600 ", "El Name es: "+ comando);
+                            usuario.setName(comando);
+
+                            comando="";
+                            for (int i = NAME_SIZE; i < NONCE_ABF; i++) {
+                                comando += val.charAt(i);
+                            }
+                            Log.d("OnCharWriteReq 0600 ", "El NonceABF es: "+ comando);
+                            usuario.setNonceABF(comando);
+                            usuario.setAuthorizationId("2");
+                            usuarios.add(usuario);
+
+                            Log.d("OnCharWriteReq 0600 ", "Verificacion Realizada con Exito");
+                            authid=true;
+                        }
+                        else{
+                            verifyauth=false;
+                            Log.d("OnCharWriteReq 0500", "Error de Verificacion");
+                        }
+
+                        break;
+                    case "1E00":
+                        String statuscompleted= "0E0000";
+                        cripto.generateNonce();
+                        String nonc= bytesToHex(cripto.getNonce());
+                        statuscompleted+= nonc;
+                        if (responseNeeded) {
+                                mGattServer.sendResponse(device,
+                                        requestId,
+                                        BluetoothGatt.GATT_SUCCESS,
+                                        0,
+                                        hexStringToByteArray(statuscompleted));
+                                characteristic.setValue(hexStringToByteArray(statuscompleted));
+                        Log.d(TAG,"1E00 completado con exito") ;
+                        }
+
+                        break;
+
                     default:
                         Log.d("OnCHarWriteReq", "No coje bien Comando");
                         break;

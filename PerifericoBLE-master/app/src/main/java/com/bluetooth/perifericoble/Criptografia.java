@@ -24,6 +24,9 @@ public class Criptografia {
     private PrivateKey privateKey;
     private byte[] nonce;
     private byte[] sharedKey;
+    private String challenge;
+    private byte[] authenticator;
+    private final int NONCE_64_LENGHT = 32;
 
 
 
@@ -69,12 +72,23 @@ public class Criptografia {
 
     public byte[] getNonce(){ return nonce; }
 
+    public byte[] generateNonce64(){
+        NaCl.sodium();
+        byte[] nonc= new byte[NONCE_64_LENGHT];
+        Sodium.randombytes_buf(nonc, NONCE_64_LENGHT);   //creacion del nonce
+        Log.d(TAG, "Nonce Creado, es: "+ MainActivity.bytesToHex(nonc));
+        return nonc;
+
+        //Sodium.crypto_scalarmult_curve25519(q,n,p)
+    }
+
+
     public byte[] diffieHellman(byte[] centralPublicKey){
         NaCl.sodium();
         byte[] shared_key = new byte[Sodium.crypto_core_hsalsa20_outputbytes()];
 
-        byte[] dhk = new byte[Sodium.crypto_scalarmult_curve25519_bytes()];
-        if(Sodium.crypto_scalarmult_curve25519(dhk,shared_key ,centralPublicKey) != 0){
+        byte[] dhk = privateKey.toBytes();
+        if(Sodium.crypto_scalarmult_curve25519(shared_key,dhk ,centralPublicKey) != 0){
             Log.e(TAG, "Crypto_scalarmult_curve25519 FAILED");
             return null;
         }
@@ -84,13 +98,50 @@ public class Criptografia {
             Log.e(TAG, "wrong sigma length");
             return null;
         }
-        if (Sodium.crypto_core_hsalsa20(shared_key, inv, dhk, sigma) != 0) {
+        if (Sodium.crypto_core_hsalsa20(dhk, inv, shared_key, sigma) != 0) {
             Log.e(TAG, "crypto_core_hsalsa20 failed");
             return null;
         }
         Log.d(TAG, "El valor de la shared key es: "+ MainActivity.bytesToHex(shared_key));
-        Log.d(TAG, "El valor del dhk es: "+  MainActivity.bytesToHex(dhk));
-        return shared_key;
+        Log.d(TAG, "El valor de la derivate shared key es: "+  MainActivity.bytesToHex(dhk));
+        return dhk;
+    }
+
+    public void setChallenge(String challen){
+        challenge=challen;
+    }
+
+    public String getChallenge(){
+        return challenge;
+    }
+
+    public void setAuthenticator(byte[] auth){
+        authenticator = auth;
+    }
+
+    public byte[] getAuthenticator(){
+        return authenticator;
+    }
+
+    public void setSharedKey(byte[] sKey){
+        sharedKey = sKey;
+    }
+    public byte[] getSharedKey(){
+        return sharedKey;
+    }
+
+    public void calculateAuthenticator(String r){
+
+        NaCl.sodium();
+        byte[] authenticator = new byte[Sodium.crypto_auth_hmacsha256_bytes()];
+        byte[] in = r.getBytes();
+        Sodium.crypto_auth_hmacsha256(authenticator, in,in.length, sharedKey );
+        Log.d("Calculate Authenticator", "Valor de Peripherico Authenticator: " + MainActivity.bytesToHex(authenticator ));
+        Log.d("Calculate Authenticator", "Valor de Peripherico Shared Key: " + MainActivity.bytesToHex(sharedKey));
+
+        this.setAuthenticator(authenticator);
+
+
     }
 
 

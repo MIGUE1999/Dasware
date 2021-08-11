@@ -18,6 +18,7 @@ package com.example.android.bluetoothlegatt;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -60,6 +61,14 @@ public class BluetoothLeService extends Service {
 
     private  byte[] peripheralPubKey=null;
     private  byte[] peripheralPrivKey=null;
+    private byte[] challenge=null;
+
+    public final int REQUEST_COMAND_SIZE=4;
+    public final int KEY_SIZE = 68;
+    public final int AUTHENTICATOR_SIZE = 76;
+
+
+
 
 
 
@@ -130,19 +139,72 @@ public class BluetoothLeService extends Service {
                                          int status) {
 
                 Log.d(ServerUUIDS.TAG, "ON READ STATUS:"+ status);
-                Log.d(ServerUUIDS.TAG, "El valor on characteristic read es: "+ bytesToHex(characteristic.getValue()));
+                Log.d(ServerUUIDS.TAG, "El valor on characteristic read es: "+ DeviceControlActivity.cripto.bytesToHex(characteristic.getValue()));
+            Log.d(ServerUUIDS.TAG, "El valor on characteristic read es: "+ (DeviceControlActivity.cripto.hexToAscii(DeviceControlActivity.cripto.bytesToHex(characteristic.getValue()))));
+            if(DeviceControlActivity.authid)
+                Log.d(ServerUUIDS.TAG, "Auth id = true");
+            else
+                Log.d(ServerUUIDS.TAG, "Auth id = false");
 
-            if(characteristic.getUuid().equals(ServerUUIDS.AUTHORIZATION_CHAR) && peripheralPubKey == null)
-                peripheralPubKey = characteristic.getValue();
-/*
-            if(characteristic.getUuid().equals(ServerUUIDS.AUTHORIZATION_CHAR) && pubKey == null && privKey == null){
-                Log.d(ServerUUIDS.TAG, "ENTRA BIEN");
-                Criptografia cripto = new Criptografia();
-                cripto.generateKeyPair();
-                pubKey = cripto.getPublicKey();
-                privKey = cripto.getPrivateKey();
+
+
+            if(characteristic.getUuid().equals(ServerUUIDS.AUTHORIZATION_CHAR) && DeviceControlActivity.controlPkey) {
+                Log.d(TAG, "SE METE");
+                DeviceControlActivity.cripto.setPeripheralPublicKey(characteristic.getValue());
+
+            }else if(characteristic.getUuid().equals(ServerUUIDS.AUTHORIZATION_CHAR) && DeviceControlActivity.challenge == true){
+                Log.d(TAG, "Dentro del challenge");
+                DeviceControlActivity.cripto.setChallenge(characteristic.getValue());
             }
-            */
+
+            else if(characteristic.getUuid().equals(ServerUUIDS.AUTHORIZATION_CHAR) && DeviceControlActivity.authid == true){
+                Log.d(TAG, "Dentro del authid");
+                String comando= DeviceControlActivity.cripto.hexToAscii(DeviceControlActivity.cripto.bytesToHex(characteristic.getValue()));
+                String value="";
+                Log.d(TAG, "Comando: "+ comando);
+                for (int i = 0; i < REQUEST_COMAND_SIZE; i++) {
+                    value = value + comando.charAt(i);
+                }
+                Log.d(TAG, "Value: "+value);
+                if (value.equals("0700")){
+                    value="";
+                    for (int i = REQUEST_COMAND_SIZE; i < KEY_SIZE; i++) {
+                        value += comando.charAt(i);
+                    }
+                    Log.d(TAG, "Peripherical authenticator: " +  value);
+                    Log.d(TAG, "Central authenticator: " +  Criptografia.bytesToHex(DeviceControlActivity.cripto.getAuthenticator()));
+                    if(value.equals(Criptografia.bytesToHex(DeviceControlActivity.cripto.getAuthenticator()))){
+                        value="";
+                        for (int i = KEY_SIZE; i < AUTHENTICATOR_SIZE ; i++) {
+                            value += comando.charAt(i);
+                        }
+                        DeviceControlActivity.cripto.setAuthorizationId(value);
+                        Log.d(TAG,"AUTH-ID completado con exito");
+                    }
+                    else{
+                        Log.e(TAG,"Error en authid");
+                    }
+                }
+                else{
+                    Log.e(TAG, "Error en authorization Id");
+                }
+            }
+            else if(characteristic.getUuid().equals(ServerUUIDS.AUTHORIZATION_CHAR) && DeviceControlActivity.idconfirmation==true){
+                String coman = DeviceControlActivity.cripto.bytesToHex(characteristic.getValue());
+                String val="";
+                for(int i=0; i < 6; i++){
+                    val+=coman.charAt(i);
+                }
+                Log.d(TAG,"VALUE: "+ val);
+                if(val.equals("0E0000")){
+                    Log.d(TAG, "ESTATUS COMPLETE");
+                }else{
+                    Log.e(TAG, "ESTATUS NOT  COMPLETE");
+
+                }
+            }
+
+
 
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
 
@@ -155,7 +217,7 @@ public class BluetoothLeService extends Service {
             Log.d(ServerUUIDS.TAG, "onCharacteristicWrite");
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.d(ServerUUIDS.TAG, "onCharacteristicWrite: VALUE: "+ hexToAscii(bytesToHex(characteristic.getValue())));
+                Log.d(ServerUUIDS.TAG, "onCharacteristicWrite: VALUE: "+ DeviceControlActivity.cripto.hexToAscii(DeviceControlActivity.cripto.bytesToHex(characteristic.getValue())).toUpperCase());
             } else {
                 Log.d(ServerUUIDS.TAG, "characteristic write err:" + status);
 
@@ -469,54 +531,15 @@ public class BluetoothLeService extends Service {
         //mWriteCharacteristic.setValue(value,android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8,0);
         Log.d(TAG, "El valor que se cambia es: "+ value);
         mWriteCharacteristic.setValue(value);
-        Log.d("TAG","VALOR DE AUTHORIZATION CUSTOM CHARACTERISTIC. "+ hexToAscii(bytesToHex(mWriteCharacteristic.getValue())));
+        Log.d("TAG","VALOR DE AUTHORIZATION CUSTOM CHARACTERISTIC. "+ DeviceControlActivity.cripto.hexToAscii(DeviceControlActivity.cripto.bytesToHex(mWriteCharacteristic.getValue())).toUpperCase());
         if(mBluetoothGatt.writeCharacteristic(mWriteCharacteristic) == false){
             Log.w(TAG, "Failed to write characteristic");
         }
 
     }
 
-    //Conversores de datos
 
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    //Helper function converts byte array to hex string
-    //for priting
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
 
-    private static String asciiToHex(String asciiStr) {
-        char[] chars = asciiStr.toCharArray();
-        StringBuilder hex = new StringBuilder();
-        for (char ch : chars) {
-            hex.append(Integer.toHexString((int) ch));
-        }
 
-        return hex.toString();
-    }
-
-    public static String hexToAscii(String hexStr) {
-        StringBuilder output = new StringBuilder("");
-
-        for (int i = 0; i < hexStr.length(); i += 2) {
-            String str = hexStr.substring(i, i + 2);
-            output.append((char) Integer.parseInt(str, 16));
-        }
-
-        return output.toString();
-    }
-//Obtencion de llaves
-    public byte[] getPeripheralPrivateKey(){
-        return peripheralPrivKey;
-    }
-    public byte[] getPeripheralPublicKey(){
-        return peripheralPubKey;
-    }
 
 }

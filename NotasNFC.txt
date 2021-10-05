@@ -1,0 +1,1 @@
+La tecnología de las etiquetas que me han proporcionado es NdefFormatable, es decir que primero hay que formatearla para que se mande un mensaje NDEF(el PRimer mensaje siempre va a ser que está cerrada(close))

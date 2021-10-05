@@ -15,8 +15,10 @@ import android.os.Bundle;
 
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,6 +52,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.core.app.ActivityCompat;
 
 import org.libsodium.jni.NaCl;
@@ -66,7 +69,9 @@ import static com.bluetooth.perifericoble.DOORProfile.door_state;
 import static com.bluetooth.perifericoble.DOORProfile.getDoorState;
 import static com.bluetooth.perifericoble.DOORProfile.initDoorState;
 
-
+/**
+ * Actividad principal de la app del periferico
+ */
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private TextView mLocalTimeView;
@@ -99,6 +104,7 @@ public class MainActivity extends Activity {
     public final int NONCE_ABF = 206;
     public final int ID_CONFIRMATION = 76;
     public boolean authid = false;
+    public final int ENCRYPTED_MESSAGE= 16;
 
 
 
@@ -503,6 +509,24 @@ public class MainActivity extends Activity {
             if (DOORProfile.AUTHORIZATION_CHAR.equals(characteristic.getUuid())) {
                 //cadena en la que compruebo el comando
                 String val = hexToAscii(bytesToHex(value)).toUpperCase();
+
+                byte[] encryptval = null;
+                if (cripto.getSharedKey() != null) {
+                    Log.e("ENCRYPT", "Etra en el primer if: ");
+                    Log.e("ENCRYPT", "En bytes: "+ value);
+                    Log.e("ENCRYPT", "Valor de la shared: "+  bytesToHex(cripto.getSharedKey()));
+
+                    encryptval = Criptografia.decrypt_message(cripto.getSharedKey(), value);
+
+                    if(encryptval!=null) {
+                        Log.e("ENCRYPT", "MENSAJE DESENCRIPTADO: " + hexToAscii(bytesToHex(encryptval)));
+                        val = hexToAscii(bytesToHex(encryptval)).toUpperCase();
+                    }
+                }
+                /*
+                Log.e("ENCRYPT", "MENSAJE ENCRIPTADO: " + val);
+                */
+
                 String comando = "";
                 //IMP: Copy the received value to storage
                 storage = value;
@@ -699,7 +723,7 @@ public class MainActivity extends Activity {
                         }
                         else{
                             verifyauth=false;
-                            Log.d("OnCharWriteReq 0500", "Error de Verificacion");
+                            Log.d("OnCharWriteReq 0600", "Error de Verificacion");
                         }
 
                         break;
@@ -725,6 +749,95 @@ public class MainActivity extends Activity {
                         break;
 
                 }
+
+
+                //READ LOCK STATE Para saber que va a ser esto comprobar el 0100 primero despues del id
+                comando = "";
+
+                for (int i = 0; i < PUBLIC_KEY_COMAND_SIZE; i++) {
+                    comando = comando + val.charAt(i);
+                }
+                Log.e(TAG, comando);
+                if(comando.equals("02000000")){
+                    Log.d(TAG,"Empieza el READ LOCK STATE");
+
+                    comando = "";
+                    for (int i = PUBLIC_KEY_COMAND_SIZE; i < 12;  i++) {
+                        comando = comando + val.charAt(i);
+                    }
+
+                    if( comando.equals("0100")) {
+                        comando = "";
+
+                        for (int i = 12; i < 16; i++) {
+                            comando = comando + val.charAt(i);
+                        }
+
+                        if( comando.equals("0C00")){
+                            Log.d(TAG, "Se hace perfectamente");
+                            String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
+                            // hay que completarlo cuando se pruebe con la cerradura ya que esta es la que va a devolver el valor de la batery
+                            //DOORProfile.criticalBatery;
+
+                            Log.e("KEYTURNERSTATES" , "Tiempo: " + timeStamp);
+                            if (responseNeeded) {
+                                characteristic.setValue(cripto.getPublicKey().toBytes());
+                                mGattServer.sendResponse(device,
+                                        requestId,
+                                        BluetoothGatt.GATT_SUCCESS,
+                                        0,
+                                        cripto.getPublicKey().toBytes());
+                                Log.d("OnCharWriteReq 01000300", "Valor de la Peripheral public key: " + bytesToHex(characteristic.getValue()));
+                                storage = characteristic.getValue();
+                                comando="";
+                            }
+                        }
+                    }
+
+                }
+
+
+                /*
+                if(encryptval!= null){
+                    String decryptval = bytesToHex(encryptval);
+                    Log.e("DECRYPTVAL", "El valor desencryptado es: " + decryptval);
+
+                    comando = "";
+
+                    for (int i = ENCRYPTED_MESSAGE; i < 20; i++) {
+                        comando += decryptval.charAt(i);
+                    }
+                    if (comando.equals("0100")) {
+                        comando ="";
+                        for (int i = 20; i < 24; i++) {
+                            comando += decryptval.charAt(i);
+                        }
+                        if (comando.equals("0C00")){
+                            String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
+                            // hay que completarlo cuando se pruebe con la cerradura ya que esta es la que va a devolver el valor de la batery
+                            //DOORProfile.criticalBatery;
+
+                            Log.e("KEYTURNERSTATES" , "Tiempo: " + timeStamp);
+
+                        }
+
+
+                        if (responseNeeded) {
+                            characteristic.setValue(cripto.getPublicKey().toBytes());
+                            mGattServer.sendResponse(device,
+                                    requestId,
+                                    BluetoothGatt.GATT_SUCCESS,
+                                    0,
+                                    cripto.getPublicKey().toBytes());
+                            Log.d("OnCharWriteReq 01000300", "Valor de la Peripheral public key: " + bytesToHex(characteristic.getValue()));
+                            storage = characteristic.getValue();
+                            comando="";
+                        }
+                    }
+                    
+                }
+
+                */
 
             }
         }

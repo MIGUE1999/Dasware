@@ -11,6 +11,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import java.security.KeyPairGenerator;
+import java.util.ArrayList;
 import java.util.UUID;
 
 
@@ -44,6 +45,17 @@ public class DOORProfile {
     public static final byte abierto = (byte) 1;
     public static final byte cerrado = (byte) 0;
 
+    public static final boolean criticalBatery = false;
+
+
+    public static ArrayList<String> nukiState = new ArrayList<>();
+    public static ArrayList<String> lockState = new ArrayList<>();
+    public static ArrayList<String> trigger = new ArrayList<>();
+
+
+
+
+
     //AUTHORIZATION APP
 
     //Service UUID to expose our UART characteristics
@@ -56,6 +68,37 @@ public class DOORProfile {
 
     public static void initDoorState(){
         door_state[0]=1;
+
+        nukiState.add("00");        //unitialized
+        nukiState.add("01");        //pairing mode
+        nukiState.add("02");        //door mode
+        nukiState.add("04");        //maintenance mode
+
+        lockState.add("00");        //uncalibrated
+        lockState.add("01");        //locked
+        lockState.add("02");        //unlocking
+        lockState.add("03");        //unlocked
+        lockState.add("04");        //locking
+        lockState.add("05");        //unlatched
+        lockState.add("06");        //unlocked(lock 'n' go active)
+        lockState.add("07");        //unlatching
+        lockState.add("FC");        //calibration
+        lockState.add("FD");        //FD boot run
+        lockState.add("FE");        //motor blocked
+        lockState.add("FF");        //undefined
+
+        //solo añado este estado al trigger porque es la parte bluetooth
+        trigger.add("00");  //the state change because off bluetooth command
+
+
+
+
+
+
+
+
+
+
     }
 
 

@@ -91,8 +91,13 @@ public class BluetoothLeService extends Service {
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
 
-    // Implements callback methods for GATT events that the app cares about.  For example,
-    // connection change and services discovered.
+    /**
+     *
+     * Implements callback methods for GATT events that the app cares about.  For example,
+     * connection change and services discovered.
+     *
+     */
+
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
@@ -462,6 +467,10 @@ public class BluetoothLeService extends Service {
         return mReadCharacteristic;
     }
 
+    /**
+     * Lee la caracteristica authorization_char del servicio del keyturner pairing service
+     * @return
+     */
     public BluetoothGattCharacteristic readAuthorizeCharacteristic() {
 
         Log.d(ServerUUIDS.TAG, "Dentro de readAuthorizeCharacteristic");
@@ -511,7 +520,43 @@ public class BluetoothLeService extends Service {
         }
     }
 
+    /**
+     * Metodo que escribe en el pairingservice
+     * @param value texto a escribir en el pairing service
+     */
+
     public void writePairingService(String value){
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+
+        /*check if the service is available on the device*/
+
+        BluetoothGattService mCustomService =  mBluetoothGatt.getService(ServerUUIDS.KEYTURNER_PAIRING_SERVICE);
+        if(mCustomService == null){
+            Log.w(TAG, "Custom BLE Service not found");
+            return;
+        }
+
+        /*get the authorization characteristic from the service*/
+
+        BluetoothGattCharacteristic mWriteCharacteristic = mCustomService.getCharacteristic(ServerUUIDS.AUTHORIZATION_CHAR);
+        //mWriteCharacteristic.setValue(value,android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8,0);
+        Log.d(TAG, "El valor que se cambia es: "+ value);
+        mWriteCharacteristic.setValue(value);
+        Log.d("TAG","VALOR DE AUTHORIZATION CUSTOM CHARACTERISTIC. "+ DeviceControlActivity.cripto.hexToAscii(DeviceControlActivity.cripto.bytesToHex(mWriteCharacteristic.getValue())).toUpperCase());
+        if(mBluetoothGatt.writeCharacteristic(mWriteCharacteristic) == false){
+            Log.w(TAG, "Failed to write characteristic");
+        }
+
+    }
+
+    /**
+     * Metodo que escribe en el pairingservice
+     * @param value cadena de bytes a escribir en el pairing service
+     */
+    public void writePairingServiceByteArray(byte[] value){
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;

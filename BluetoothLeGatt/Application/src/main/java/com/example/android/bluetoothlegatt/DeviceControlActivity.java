@@ -88,7 +88,9 @@ public class DeviceControlActivity extends Activity {
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
 
-    // Code to manage Service lifecycle.
+    /**
+     *     Code to manage Service lifecycle.
+     */
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
@@ -108,12 +110,14 @@ public class DeviceControlActivity extends Activity {
         }
     };
 
-    // Handles various events fired by the Service.
-    // ACTION_GATT_CONNECTED: connected to a GATT server.
-    // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
-    // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
-    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
-    //                        or notification operations.
+    /**
+     *      Handles various events fired by the Service.
+     *      ACTION_GATT_CONNECTED: connected to a GATT server.
+     *      ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
+     *      ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
+     *      ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read or notification operations.
+     *
+     */
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -174,7 +178,9 @@ public class DeviceControlActivity extends Activity {
     };
     */
 
-
+    /**
+     * Metodo que limpia la interfaz
+     */
     private void clearUI() {
         //mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
         mDataField.setText(R.string.no_data);
@@ -218,11 +224,24 @@ public class DeviceControlActivity extends Activity {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
         }
+        if(cripto.getSharedKey() != null)
+            Log.e("OnResume", "Shared Key restablecida: " + cripto.getSharedKey());
+
+        if(cripto.getAuthorizationId() != null)
+            Log.e("OnResume", "AuthorizationId restablecida: " + cripto.getAuthorizationId());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        if(cripto.getAuthorizationId() != null)
+        cripto.setAuthorizationId(cripto.bytesToHex(cripto.getAuthorizationId()));
+        if(cripto.getSharedKey() != null)
+        cripto.setSharedKey(cripto.getSharedKey());
+
+        Log.e("OnPause", "Shared Key restablecida: " + cripto.getSharedKey());
+        Log.e("OnPause", "AuthorizationId restablecida: " + cripto.getAuthorizationId());
         unregisterReceiver(mGattUpdateReceiver);
     }
 
@@ -271,15 +290,21 @@ public class DeviceControlActivity extends Activity {
         });
     }
 
+    /**
+     * Muestra los datos en la interfaz que se le pasen por parametro
+     * @param data texto a mostrar en la interfaz
+     */
     private void displayData(String data) {
         if (data != null) {
             mDataField.setText(data);
         }
     }
 
-    // Demonstrates how to iterate through the supported GATT Services/Characteristics.
-    // In this sample, we populate the data structure that is bound to the ExpandableListView
-    // on the UI.
+    /**
+     *     Demonstrates how to iterate through the supported GATT Services/Characteristics.
+     *     In this sample, we populate the data structure that is bound to the ExpandableListView
+     *     on the UI.
+     */
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
         String uuid = null;
@@ -344,10 +369,14 @@ public class DeviceControlActivity extends Activity {
     }
 
 
-
+    /**
+     * Al pulsar en write en la interfaz comienza el proceso de comunicacion de requestDataKeyturnerStates
+     * @param v vista actual
+     * @throws InterruptedException
+     */
     public void onClickWrite(View v) throws InterruptedException {
         if (mBluetoothLeService != null) {
-
+/*
             if(cerrado) {
                 //mBluetoothLeService.writeCustomCharacteristic("0xBB");
                 authorizeApp();
@@ -362,13 +391,18 @@ public class DeviceControlActivity extends Activity {
                 authorizeApp();
                 cerrado=true;
             }
+            */
+            requestDataKeyturnerStates();
             //TimeUnit.SECONDS.sleep(1);
             //readAuthorizeCharacteristic();
         }
     }
 
-
-
+    /**
+     * Al pulsar en Read en la interfaz comienza el proceso de autenticacion del usuario con la puerta
+     * @param v vista actual
+     * @throws InterruptedException
+     */
     public void onClickRead(View v) throws InterruptedException {
         if(mBluetoothLeService != null) {
             //readAuthorizeCharacteristic();
@@ -383,7 +417,6 @@ public class DeviceControlActivity extends Activity {
             */
 
             authorizeApp();
-
 
             challenge();
             String r = concatenate();
@@ -403,12 +436,18 @@ public class DeviceControlActivity extends Activity {
 
             authorizationIdConfirmation();
 
+            //requestDataKeyturnerStates();
+
+
 
         }
 
     }
 
-
+    /**
+     * Metodo que sirve para compartir la shared key entre el periferico y el central
+     * @throws InterruptedException
+     */
     public void authorizeApp() throws InterruptedException {
 
         String code = "0100030027A7";
@@ -431,6 +470,7 @@ public class DeviceControlActivity extends Activity {
 
 
     }
+
 
     public void readMainCharacteristic(){
 
@@ -461,6 +501,9 @@ public class DeviceControlActivity extends Activity {
 
     }
 
+    /**
+     * Metodo para leer la característica Authorize
+     */
     public void readAuthorizeCharacteristic(){
         BluetoothGattCharacteristic characteristic = mBluetoothLeService.readAuthorizeCharacteristic();
 
@@ -489,6 +532,10 @@ public class DeviceControlActivity extends Activity {
 
     }
 
+    /**
+     * Método que manda la public key al periferico escribiendo en la caracteristica esta key
+     * @throws InterruptedException
+     */
     public void sendPublicKey() throws InterruptedException {
 
             String code="0300";
@@ -504,6 +551,11 @@ public class DeviceControlActivity extends Activity {
 
     }
 
+    /**
+     * Metodo por el cual se manda un challenge al periferico que debería descifrarlo
+     * si obtuvo la shared key correcta
+     * @throws InterruptedException
+     */
     public void challenge() throws InterruptedException {
         challenge = true;
         String code="0400";
@@ -533,6 +585,10 @@ public class DeviceControlActivity extends Activity {
 
     }
 
+    /**
+     * metodo que concatena la Pkey del central con la Pkey del periferico con el challenge calculado en challenge()
+     * @return r concatenacion de pkeys y challenge
+     */
     public String concatenate(){
         String r;
         r= cripto.bytesToHex(centralPublicKey.toBytes())+ cripto.bytesToHex(peripheralPublicKey) + cripto.bytesToHex(cripto.getChallenge());
@@ -545,7 +601,11 @@ public class DeviceControlActivity extends Activity {
     }
 
 
-
+    /**
+     * Escribe el codigo del authorizationAuthenticator en la caracteristica para que se realicen
+     * las operaciones determinadas en el periferico
+     * @throws InterruptedException
+     */
     public void authorizationAuthenticator() throws InterruptedException {
         TimeUnit.SECONDS.sleep(1);
         String code="0500";
@@ -561,7 +621,10 @@ public class DeviceControlActivity extends Activity {
 
     }
 
-
+    /**
+     * Metodo que escribe el autenticador del central junto con su tipo de idd su app id su nombre y un nonceABF
+     * @throws InterruptedException
+     */
     public void authorizationData() throws InterruptedException {
 
         TimeUnit.SECONDS.sleep(1);
@@ -586,6 +649,10 @@ public class DeviceControlActivity extends Activity {
         mBluetoothLeService.writePairingService(code);
     }
 
+    /**
+     * Metodo que lee el authorization ID
+     * @throws InterruptedException
+     */
     public void authorizationId() throws InterruptedException {
         TimeUnit.SECONDS.sleep(1);
 
@@ -598,6 +665,11 @@ public class DeviceControlActivity extends Activity {
 
     }
 
+    /**
+     * Metodo que escribe el codigo de authorizationIdConfrimation para que se confirme si es verdad
+     * este autenticador y el autenticador id
+     * @throws InterruptedException
+     */
     public void authorizationIdConfirmation() throws InterruptedException {
         TimeUnit.SECONDS.sleep(1);
         idconfirmation=true;
@@ -615,5 +687,63 @@ public class DeviceControlActivity extends Activity {
 
         idconfirmation=false;
     }
+
+    /**
+     * Metodo que encripta los keyturner States y los manda al periferico encriptados
+     * @throws InterruptedException
+     */
+    public void requestDataKeyturnerStates() throws InterruptedException {
+        String id = cripto.bytesToHex(cripto.getAuthorizationId());
+        cripto.generateNonce();
+        //String message = id + "01000C00" + cripto.bytesToHex(cripto.getNonce());
+        String message = "0200000001000C00" + cripto.bytesToHex(cripto.getNonce());
+        Log.e("RequestDatKeySt", "VALOR DE LA SHARED: " + cripto.bytesToHex(cripto.getSharedKey()));
+
+        byte[] encriptado, desencriptado;
+        encriptado = Criptografia.encrypt_message(cripto.getSharedKey(),message.length(),message.getBytes(), null);
+        Log.e("ENCRYPT", "MENSAJE ENCRIPTADO: " + cripto.bytesToHex(encriptado) );
+        Log.e("ENCRYPT","ENCRIPTADO EN BYTES: "+ encriptado);
+        desencriptado = Criptografia.decrypt_message(cripto.getSharedKey(), encriptado);
+        Log.e("ENCRYPT", "MENSAJE DESENCRIPTADO: " + cripto.hexToAscii(cripto.bytesToHex(desencriptado)));
+        Log.e("ENCRYPT", "MENSAJE EN BYTES: " + message);
+
+        mBluetoothLeService.writePairingServiceByteArray(encriptado);
+
+        TimeUnit.SECONDS.sleep(1);
+
+       // mBluetoothLeService.writePairingService(message);
+
+
+        TimeUnit.SECONDS.sleep(1);
+
+
+    }
+
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(cripto.getAuthorizationId() != null) {
+            outState.putByteArray("authorizationId", cripto.getAuthorizationId());
+            Log.e("OnSaveInstanceState", "AuthorizationID guardada");
+
+        }
+        if(cripto.getSharedKey() != null){
+            outState.putByteArray("sharedKey", cripto.getSharedKey());
+            Log.e("OnSaveInstanceState", "Shared guardada");
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        cripto.setAuthorizationId(cripto.bytesToHex(savedInstanceState.getByteArray("authorizationId")));
+        cripto.setSharedKey(savedInstanceState.getByteArray("sharedKey"));
+        Log.e("RestoreInstanceState", "Shared Key restablecida: " + cripto.getSharedKey());
+        Log.e("RestoreInstanceState", "AuthorizationId restablecida: " + cripto.getAuthorizationId());
+
+    }
+
 
 }
